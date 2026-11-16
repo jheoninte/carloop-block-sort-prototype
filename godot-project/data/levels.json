@@ -1,0 +1,26 @@
+[
+  {
+    "id": "level-001",
+    "name": "Starter Loop",
+    "trackCapacity": 8,
+    "trackNodes": [[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],
+    "cars": [
+      { "id": "A", "color": "red", "capacity": 4, "blocks": ["red", "blue", "red"], "lane": 0, "locked": false },
+      { "id": "B", "color": "blue", "capacity": 4, "blocks": ["blue", "yellow"], "lane": 1, "locked": false },
+      { "id": "C", "color": "yellow", "capacity": 4, "blocks": ["yellow", "red"], "lane": 2, "locked": false }
+    ],
+    "boosters": { "undo": 2, "shuffle": 1, "magnet": 1, "extraSlot": 1 }
+  },
+  {
+    "id": "level-002",
+    "name": "Forked Loop",
+    "trackCapacity": 9,
+    "trackNodes": [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[5,1],[5,2],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],
+    "cars": [
+      { "id": "A", "color": "red", "capacity": 4, "blocks": ["yellow", "red", "blue"], "lane": 0, "locked": false },
+      { "id": "B", "color": "blue", "capacity": 4, "blocks": ["blue", "red"], "lane": 1, "locked": false },
+      { "id": "C", "color": "yellow", "capacity": 4, "blocks": ["yellow", "blue"], "lane": 2, "locked": false }
+    ],
+    "boosters": { "undo": 2, "shuffle": 1, "magnet": 1, "extraSlot": 1 }
+  }
+]
