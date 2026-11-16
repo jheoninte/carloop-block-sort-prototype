@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CarLoop Block Sort Prototype</title>
+  <style>
+    :root { --bg:#f4f7fb; --ink:#24324a; --muted:#6b7a90; --card:#ffffff; --line:#d9e1ef; }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#eaf2ff,#f7fbff);color:var(--ink)}
+    .app{max-width:980px;margin:0 auto;padding:16px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .panel,.car,.track,.meta{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 24px rgba(44,82,130,.08)}
+    .panel{padding:12px 14px}.controls{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:10px 12px;background:#2f6df6;color:white;font-weight:700;cursor:pointer}.btn.secondary{background:#eef3ff;color:#2f4f94}.btn.warn{background:#ff8d66}
+    .grid{display:grid;grid-template-columns:1.2fr .9fr;gap:16px;margin-top:16px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+    .board{padding:14px}.track{position:relative;min-height:360px;padding:8px}.nodes{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
+    .node{height:40px;border-radius:999px;border:2px dashed #c9d4ea;background:#f8fbff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7f8aa2}
+    .node.block-red,.pill.red{background:#ff6b6b;color:white;border-style:solid;border-color:#ff6b6b}
+    .node.block-blue,.pill.blue{background:#4d96ff;color:white;border-style:solid;border-color:#4d96ff}
+    .node.block-yellow,.pill.yellow{background:#ffc542;color:#5d4700;border-style:solid;border-color:#ffc542}
+    .cars{display:flex;flex-direction:column;gap:10px;margin-top:14px}.car{padding:12px;cursor:pointer}.car.locked{opacity:.55;cursor:not-allowed}.car.cleared{background:#ddffe7}
+    .car-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.slots{display:flex;gap:6px;flex-wrap:wrap;min-height:36px}.pill{min-width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;padding:0 8px}
+    .side{display:flex;flex-direction:column;gap:16px}.meta{padding:14px}.status{color:var(--muted);min-height:20px}.tiny{font-size:12px;color:var(--muted)} code{background:#eef3ff;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="top panel">
+    <div>
+      <strong>CarLoop Block Sort Prototype</strong>
+      <div class="tiny">Sort + Jam / Loop Track / Engine-agnostic package</div>
+    </div>
+    <div class="controls">
+      <button id="speedBtn" class="btn secondary">1x</button>
+      <button id="undoBtn" class="btn secondary">Undo</button>
+      <button id="shuffleBtn" class="btn secondary">Shuffle</button>
+      <button id="resetBtn" class="btn warn">Reset</button>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="board panel">
+      <div><strong id="levelName"></strong></div>
+      <div class="tiny">차량을 탭하면 맨 앞 블록이 트랙으로 나갑니다. 같은 색 차량이 비거나 같은 색만 담고 있으면 자동 수집됩니다.</div>
+      <div class="track" id="trackBox">
+        <div><strong>Loop Track</strong> <span class="tiny">capacity <span id="capacityLabel"></span></span></div>
+        <div class="nodes" id="nodes"></div>
+      </div>
+      <div class="cars" id="cars"></div>
+    </div>
+    <div class="side">
+      <div class="meta">
+        <div><strong>현재 상태</strong></div>
+        <div class="status" id="status"></div>
+        <div class="tiny">실시간 저장: <code>localStorage</code></div>
+      </div>
+      <div class="meta">
+        <div><strong>핵심 포인트</strong></div>
+        <ul>
+          <li>2배속 토글</li>
+          <li>실시간 저장 / 재진입 복원</li>
+          <li>자동 수집 / 차량 클리어</li>
+          <li>간단 데드락 판정</li>
+        </ul>
+      </div>
+      <div class="meta">
+        <div><strong>후속 연결</strong></div>
+        <div class="tiny">이 레벨 구조는 Godot/Unity에서 동일 JSON으로 옮기기 쉽게 유지됩니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const STORAGE_KEY = 'carloop-prototype-save-v1';
+const LEVELS = [
+  {
+    id:'level-001', name:'Starter Loop', trackCapacity:8,
+    trackNodes:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[5,1],[5,2],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],
+    cars:[
+      {id:'A', color:'red', capacity:4, blocks:['red','blue','red'], lane:0, locked:false},
+      {id:'B', color:'blue', capacity:4, blocks:['blue','yellow'], lane:1, locked:false},
+      {id:'C', color:'yellow', capacity:4, blocks:['yellow','red'], lane:2, locked:false}
+    ]
+  },
+  {
+    id:'level-002', name:'Forked Loop', trackCapacity:9,
+    trackNodes:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[5,1],[5,2],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],
+    cars:[
+      {id:'A', color:'red', capacity:4, blocks:['yellow','red','blue'], lane:0, locked:false},
+      {id:'B', color:'blue', capacity:4, blocks:['blue','red'], lane:1, locked:false},
+      {id:'C', color:'yellow', capacity:4, blocks:['yellow','blue'], lane:2, locked:false}
+    ]
+  }
+];
+const state = { levelIdx:0, speed:1, cars:[], track:[], cleared:new Set(), history:[] };
+const el = {
+  levelName:document.getElementById('levelName'), capacityLabel:document.getElementById('capacityLabel'), nodes:document.getElementById('nodes'),
+  cars:document.getElementById('cars'), status:document.getElementById('status'), speedBtn:document.getElementById('speedBtn'),
+  undoBtn:document.getElementById('undoBtn'), shuffleBtn:document.getElementById('shuffleBtn'), resetBtn:document.getElementById('resetBtn')
+};
+function clone(v){ return JSON.parse(JSON.stringify(v)); }
+function level(){ return LEVELS[state.levelIdx]; }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ levelIdx:state.levelIdx, speed:state.speed, cars:state.cars, track:state.track, cleared:[...state.cleared] })); }
+function load(){ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return false; try{ const s=JSON.parse(raw); state.levelIdx=s.levelIdx??0; state.speed=s.speed??1; state.cars=s.cars??clone(LEVELS[state.levelIdx].cars); state.track=s.track??[]; state.cleared=new Set(s.cleared??[]); return true; }catch{return false;} }
+function snapshot(){ state.history.push({ cars:clone(state.cars), track:clone(state.track), cleared:[...state.cleared] }); if(state.history.length>20) state.history.shift(); }
+function bootLevel(){ const ok = load(); if(!ok){ state.levelIdx=0; state.speed=1; state.cars=clone(level().cars); state.track=[]; state.cleared=new Set(); } renderAll(); tick(); }
+function setStatus(msg){ el.status.textContent = msg; }
+function canCollect(car,color){ if(state.cleared.has(car.id)) return false; if(car.blocks.length>=car.capacity) return false; if(car.blocks.length===0) return car.color===color; return car.color===color && car.blocks.every(v=>v===color); }
+function tryCollect(){ let moved = false; for(let i=state.track.length-1;i>=0;i--){ const item=state.track[i]; for(const car of state.cars){ if(canCollect(car,item.color)){ car.blocks.push(item.color); state.track.splice(i,1); moved = true; if(car.blocks.length===car.capacity && car.blocks.every(v=>v===car.color)){ state.cleared.add(car.id); }
+            break; } } } return moved; }
+function tappableCars(){ return state.cars.filter(car=>!car.locked && !state.cleared.has(car.id) && car.blocks.length>0); }
+function deadlocked(){ return state.track.length>=level().trackCapacity && tappableCars().length===0 && !state.track.some(t=>state.cars.some(car=>canCollect(car,t.color))); }
+function cleared(){ return state.cleared.size===state.cars.length; }
+function launchCar(id){ const car = state.cars.find(c=>c.id===id); if(!car || car.locked || state.cleared.has(car.id) || car.blocks.length===0) return; if(state.track.length>=level().trackCapacity){ setStatus('트랙이 가득 차서 더 사출할 수 없습니다.'); return; }
+  snapshot(); const color = car.blocks.shift(); state.track.push({color, progress:0}); tryCollect(); save(); renderAll(); if(cleared()){ setStatus('클리어! 다음 레벨로 넘어갑니다.'); setTimeout(()=>nextLevel(),700); return; } if(deadlocked()) setStatus('데드락 상태입니다. Undo / Shuffle / Reset을 사용해 보세요.'); else setStatus(`${car.id}에서 ${color} 블록을 사출했습니다.`); }
+function nextLevel(){ state.levelIdx = (state.levelIdx + 1) % LEVELS.length; state.cars=clone(level().cars); state.track=[]; state.cleared=new Set(); state.history=[]; save(); renderAll(); }
+function undo(){ const prev = state.history.pop(); if(!prev) return; state.cars = prev.cars; state.track = prev.track; state.cleared = new Set(prev.cleared); save(); renderAll(); setStatus('직전 상태로 되돌렸습니다.'); }
+function shuffle(){ snapshot(); state.cars.sort(()=>Math.random()-0.5); save(); renderAll(); setStatus('차량 순서를 섞었습니다.'); }
+function reset(){ localStorage.removeItem(STORAGE_KEY); state.levelIdx=0; state.speed=1; state.cars=clone(LEVELS[0].cars); state.track=[]; state.cleared=new Set(); state.history=[]; renderAll(); setStatus('초기 상태로 리셋했습니다.'); }
+function renderTrack(){ const cap = level().trackCapacity; el.capacityLabel.textContent = `${state.track.length}/${cap}`; const total = Math.max(cap, level().trackNodes.length); el.nodes.innerHTML=''; for(let i=0;i<total;i++){ const node=document.createElement('div'); const item=state.track[i]; node.className='node'+(item?` block-${item.color}`:''); node.textContent=item?item.color[0].toUpperCase():i+1; el.nodes.appendChild(node); } }
+function renderCars(){ el.cars.innerHTML=''; for(const car of state.cars){ const wrap=document.createElement('div'); wrap.className='car'+(car.locked?' locked':'')+(state.cleared.has(car.id)?' cleared':''); wrap.onclick=()=>launchCar(car.id); const slots = car.blocks.map(c=>`<span class="pill ${c}">${c[0].toUpperCase()}</span>`).join(''); wrap.innerHTML=`<div class="car-head"><strong>${car.id} · target ${car.color}</strong><span class="tiny">${state.cleared.has(car.id)?'CLEARED':car.blocks.length+'/'+car.capacity}</span></div><div class="slots">${slots || '<span class="tiny">empty</span>'}</div>`; el.cars.appendChild(wrap); } }
+function renderAll(){ el.levelName.textContent = `${level().name} (${level().id})`; el.speedBtn.textContent = state.speed+'x'; renderTrack(); renderCars(); }
+function tick(){ tryCollect(); save(); renderTrack(); if(deadlocked()) setStatus('데드락 상태입니다.'); setTimeout(tick, state.speed===2 ? 350 : 700); }
+el.speedBtn.onclick=()=>{ state.speed = state.speed===1?2:1; save(); renderAll(); setStatus(`속도를 ${state.speed}x로 변경했습니다.`); };
+el.undoBtn.onclick=undo; el.shuffleBtn.onclick=shuffle; el.resetBtn.onclick=reset;
+bootLevel();
+</script>
+</body>
+</html>
