@@ -1,0 +1,981 @@
+CarLoop 다음 구현: 일시정지·설정·플레이 피드백
+
+이 파일은 실제 Windows 저장소의 현재 소스 스냅샷이다.
+Godot 4.7.2 네이티브 2D 게임이며 iOS를 먼저 출시하고 이후 Android를 지원한다.
+20레벨, 첫 5레벨 튜토리얼, 힌트, 완료 기록과 로컬 저장이 이미 동작한다.
+현재 181개 회귀 검사와 80회 Godot 레벨 재생을 통과했다.
+
+이번 목표:
+플레이 중 안전한 일시정지, 별도 저장되는 설정, 사출/수집/완성 피드백을 추가한다.
+현재 소스를 읽고 필요한 파일만 변경해라. 새 게임을 다시 작성하지 않는다.
+소스에 없는 외부 가이드나 HubGame 정책을 추정해서 추가하지 않는다.
+광고/결제/리더보드/로그인/서버/HubGame/JavaScriptBridge는 이번 범위가 아니다.
+
+수정 범위:
+- 추가 가능: scripts/SettingsService.gd, scripts/FeedbackService.gd 및 필요한 소규모 테스트 파일.
+- 수정 가능: scripts/Main.gd, scenes/Main.tscn, scripts/HeadlessTest.gd.
+- TrackView.gd는 기존 렌더링 API를 이해하기 위한 참조이며 수정하지 않는다.
+- GameManager.gd는 안전한 저장소 API 참조이며 변경하지 않는다.
+- GameCore.gd, TutorialGuide.gd, 레벨/해법/튜토리얼 JSON, project.godot과 웹은 변경하지 않는다.
+- 외부 애드온, 유료 자산, 폰트, 이미지, 오디오 파일 의존성을 추가하지 않는다.
+- RefCounted 서비스와 Node/UI의 역할을 분리하고 코어 규칙에는 접근해 수정하지 않는다.
+
+현재 API:
+- core.update_progress(delta) -> {"moved": bool, "collected": bool}
+- core.state -> levelIdx, speed, cars, track, cleared, history
+- core.export_save()/is_valid_save(payload)/load_state(payload)
+- guide.export_progress()/restore_progress(data)/mark_completed(level_id)
+- Main의 _save는 코어 페이로드에 progress를 추가해 저장한다.
+- GameManager의 save_progress(payload, validator)/load_progress(validator)는 정상 백업과 상태 검증을 지원한다.
+- autoload 인스턴스의 configure_paths를 설정 저장용으로 바꾸면 실제 게임 세이브가 훼손되므로 금지한다.
+
+1. 일시정지
+- 사용자의 일시정지, 설정 창 열림, 운영체제의 suspended를 각각 구분한다.
+- 셋 중 하나라도 활성 상태이면 코어 이동과 clear_timer가 진행되지 않는다.
+- 재개 시 기존 skip_next_delta와 accumulator 초기화를 유지해 시간 점프를 막는다.
+- 일시정지/설정 상태에서는 사출·Undo·Shuffle·다시하기·배속 변경을 UI와 핸들러 양쪽에서 막는다.
+- 일시정지 해제/설정 닫기 버튼은 정상 작동하며 키보드/터치 입력이 뒤의 게임으로 새지 않는다.
+- 설정을 닫으면 설정을 열기 전의 사용자 일시정지 상태를 유지한다.
+- 앱 백그라운드->복귀로 사용자가 눌러 둔 일시정지가 풀리지 않아야 한다.
+- 클리어 대기 중 일시정지하면 타이머를 보존하고 재개 후 한 번만 전환한다.
+- 일시정지는 세션 상태이며 게임 재실행 시 영구적으로 멈춘 상태로 복원하지 않는다.
+- 게임/튜토리얼/완료 기록의 기존 저장을 보존하고 일시정지/중단 시 필요한 저장도 수행한다.
+
+2. 설정
+- 효과음 sfx_enabled=true, 진동 haptics_enabled=true, 연출 줄이기 reduced_motion=false.
+- 세 값은 반드시 bool로 검증하며 별도의 버전 있는 설정 파일에 저장한다.
+- 기존 게임과 다른 경로인 user://carloop_settings.*를 사용한다.
+- GameManager 스크립트의 별도 인스턴스를 전용 prefix로 생성해 재사용할 수 있다.
+  별도 Node를 생성한다면 소유권/해제를 처리하고 autoload의 경로를 바꾸지 않는다.
+- 변경은 즉시 반영·저장하고 손상된 설정은 백업 또는 기본값으로 복원한다.
+- 설정 저장 실패로 게임을 멈추거나 정상 게임 저장을 초기화하지 않는다. 설정 UI에 실패를 알린다.
+- 기존 정상 세이브에 설정 데이터가 없더라도 게임 진행/튜토리얼/완료 기록이 유지된다.
+
+3. 소리·진동·시각 피드백
+- 이벤트: 사출, 수집, 차량 완성, 레벨 완성, 막힘 진입.
+- _process 또는 _refresh_status의 매 프레임 호출로 같은 소리가 계속 재생되지 않게 한다.
+- 한 프레임 여러 블록 수집은 합치고 전체 완성 시 하위 효과가 과도하게 중첩되지 않게 한다.
+- AudioStreamWAV를 사용하는 짧고 조용한 합성 효과음으로 임시 구현한다.
+  PCM 포맷, 샘플레이트, 바이트 길이를 정확히 설정하고 짧은 페이드 인/아웃을 적용한다.
+- AudioStreamPlayer를 이벤트마다 계속 생성하지 말고 작은 고정 풀을 사용한다.
+- 음소거 전환과 앱 중단/일시정지는 재생 중인 소리도 정지시킨다.
+- 진동은 사용자 설정을 따르고 iOS/Android에서만 호출한다. Windows/헤드리스에서는 안전한 no-op.
+- 짧은 버튼/패널 강조처럼 작은 시각 피드백을 적용하고 reduced_motion이면 장식 Tween을 생략한다.
+- reduced_motion은 코어 속도/트랙 블록 이동/클리어 판정/2배속에 영향을 주지 않는다.
+- Undo/다시하기/레벨 전환/창 종료에서 오래된 Tween/효과가 다음 상태에 남지 않게 한다.
+- 실제 iPhone 진동 품질과 오디오 세션/무음 스위치 동작은 Mac 실기기 미검증으로 명시한다.
+
+4. UI
+- 세로 화면과 SafeMargin, 현재 ScrollContainer를 유지한다.
+- 기존 4개 상단 버튼에 무조건 버튼을 더해 가로로 넘치게 만들지 말고 별도 행/메뉴를 사용한다.
+- 터치 대상은 최소 44 논리 픽셀, 설정 창은 작은 화면에서도 스크롤/닫기가 가능해야 한다.
+- 튜토리얼 힌트, 강조, 완료 기록, 현재 레벨 다시하기가 기존대로 작동해야 한다.
+- 개발용 내부 용어나 SDK 이름을 플레이어에게 표시하지 않는다.
+
+5. 검사
+- 기존 HeadlessTest의 실패 시 quit(1), 성공 시 quit(0)을 유지한다. 검사/조건을 삭제하거나 느슨하게 바꿔 통과시키지 않는다.
+- 고정 fixture와 실제 레벨을 검사하는 기존 구분을 유지한다.
+- 추가 검사: 일시정지 중 위치/클리어 타이머 불변, 재개 시간 점프 방지,
+  설정 닫기 전후 사용자 일시정지 유지, 백그라운드 복귀 상태 유지,
+  일시정지 중 게임 핸들러 차단, 설정 파일 분리/복원/손상 처리,
+  음소거·진동 비활성·연출 줄이기가 게임 상태를 바꾸지 않는 것.
+- 테스트는 임시 전용 저장 prefix를 사용하고 실제 사용자 설정/게임 세이브를 건드리지 않는다.
+- 헤드리스에서 오디오 장치·모바일 진동·GPU가 없어도 검사가 종료되도록 한다.
+- Windows 실행은 .\tools\godot.ps1 play, 전체 검사는 .\tools\godot.ps1 test다.
+- 실제 Godot 실행 환경이 없으면 실행 검증했다고 쓰지 않는다.
+
+출력:
+1. 실제 확인한 코드와 설계 결정 8줄 이내.
+2. 새 파일은 경로와 생략 없는 전체 코드.
+3. 기존 파일은 정확한 문맥이 있는 unified diff로 제공한다. 파일 전체를 불필요하게 재출력하지 않는다.
+4. 인라인 코드 주석, 미완성 placeholder, 생략 표시, 가상의 파일/시그널을 넣지 않는다.
+5. 변경하지 않은 파일과 레벨 데이터는 출력하지 않는다.
+6. 실제 실행한 검사와 미실행 검사, iOS 실기기 과제를 짧게 구분한다.
+결과가 길면 파일 단위로 완성해서 나누어 제공해라.
+
+===== 현재 소스 시작 =====
+
+===== FILE: AGENTS.md =====
+이 저장소는 Vertex AI 기획 세션을 바탕으로 만든 continuation-ready 패키지입니다.
+
+원칙:
+- 코어 로직은 데이터 기반으로 유지합니다.
+- 순환 트랙 이동, 자동 수집, 데드락 판정은 렌더링과 분리합니다.
+- HTML5 프로토타입과 Godot 스캐폴드는 같은 레벨 JSON을 바라보도록 유지합니다.
+- 2배속 토글과 실시간 저장은 기본 요구사항입니다.
+===== END FILE =====
+
+===== FILE: godot-project/scripts/Main.gd =====
+extends Control
+
+const CoreScript = preload("res://scripts/GameCore.gd")
+const TrackScript = preload("res://scripts/TrackView.gd")
+const GuideScript = preload("res://scripts/TutorialGuide.gd")
+var core
+var guide
+var hint_visible := false
+var active_lesson_id := ""
+var clear_timer := -1.0
+var dirty := false
+var last_save_time := 0
+var suspended := false
+var skip_next_delta := true
+var status_message := "차량을 탭해 시작하세요."
+var save_message := "진행 상황 자동 저장"
+
+@onready var save_manager = get_node("/root/GameManager")
+
+@onready var safe_margin: MarginContainer = $SafeMargin
+@onready var track_view = $SafeMargin/Scroll/VBox/Board/TrackArea
+@onready var cars_box: VBoxContainer = $SafeMargin/Scroll/VBox/Board/Cars
+@onready var status_label: Label = $SafeMargin/Scroll/VBox/Board/StatusLbl
+@onready var save_label: Label = $SafeMargin/Scroll/VBox/Board/SaveLbl
+@onready var capacity_label: Label = $SafeMargin/Scroll/VBox/Board/CapacityLbl
+@onready var level_label: Label = $SafeMargin/Scroll/VBox/Header/LevelLbl
+@onready var speed_button: Button = $SafeMargin/Scroll/VBox/Header/Controls/SpeedBtn
+@onready var undo_button: Button = $SafeMargin/Scroll/VBox/Header/Controls/UndoBtn
+@onready var tutorial_box: VBoxContainer = $SafeMargin/Scroll/VBox/Board/TutorialBox
+@onready var hint_button: Button = $SafeMargin/Scroll/VBox/Board/TutorialBox/HintButton
+@onready var hint_panel: PanelContainer = $SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel
+@onready var hint_label: Label = $SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content/HintLbl
+
+func _ready() -> void:
+	get_tree().auto_accept_quit = false
+	resized.connect(_apply_safe_area)
+	_apply_safe_area()
+	var data: Variant = null
+	var file := FileAccess.open("res://data/levels.json", FileAccess.READ)
+	if file != null:
+		data = JSON.parse_string(file.get_as_text())
+		file.close()
+	if not CoreScript.valid_levels(data):
+		status_label.text = "레벨 데이터를 읽을 수 없습니다."
+		_set_controls_enabled(false)
+		set_process(false)
+		return
+	core = CoreScript.new(data)
+	_load_tutorials()
+	var saved: Dictionary = save_manager.load_progress(Callable(core, "is_valid_save"))
+	if core.load_state(saved):
+		status_message = "저장한 게임을 이어갑니다."
+		if guide != null:
+			guide.restore_progress(saved.get("progress"))
+		if save_manager.restored_from_backup:
+			save_message = "백업에서 진행 상황을 복구했습니다."
+	track_view.configure(core)
+	_render_static()
+	_refresh_status()
+
+func _set_controls_enabled(enabled: bool) -> void:
+	for control in $SafeMargin/Scroll/VBox/Header/Controls.get_children():
+		control.disabled = not enabled
+
+func _apply_safe_area() -> void:
+	if not is_node_ready():
+		return
+	var insets := Vector4.ZERO
+	if OS.has_feature("ios") or OS.has_feature("android"):
+		var safe := DisplayServer.get_display_safe_area()
+		if safe.size.x > 0 and safe.size.y > 0:
+			var screen_to_view := get_viewport().get_screen_transform().affine_inverse()
+			var bounds := get_viewport_rect()
+			var usable := Rect2(screen_to_view * Vector2(safe.position), screen_to_view * Vector2(safe.end) - screen_to_view * Vector2(safe.position)).intersection(bounds)
+			if usable.has_area():
+				insets = Vector4(usable.position.x, usable.position.y, bounds.end.x - usable.end.x, bounds.end.y - usable.end.y)
+	for index in range(4):
+		safe_margin.add_theme_constant_override(["margin_left", "margin_top", "margin_right", "margin_bottom"][index], 16 + int(ceil(maxf(0.0, insets[index]))))
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
+		suspended = true
+		_save(true)
+	elif what in [NOTIFICATION_APPLICATION_FOCUS_IN, NOTIFICATION_APPLICATION_RESUMED]:
+		suspended = false
+		skip_next_delta = true
+		if core != null:
+			core.accumulator = 0.0
+		if is_node_ready():
+			_apply_safe_area()
+	elif what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_save(true)
+		get_tree().quit()
+
+func _save(force: bool = false) -> void:
+	if core == null or not dirty:
+		return
+	var now := Time.get_ticks_msec()
+	if not force and now - last_save_time < 1000:
+		return
+	last_save_time = now
+	var payload: Dictionary = core.export_save()
+	if guide != null:
+		payload["progress"] = guide.export_progress()
+	if save_manager.save_progress(payload, Callable(core, "is_valid_save")):
+		dirty = false
+		save_message = "진행 상황 자동 저장 중"
+	else:
+		save_message = "저장할 수 없습니다. 현재 게임은 계속할 수 있습니다."
+	save_label.text = save_message
+
+func _process(delta: float) -> void:
+	if core == null or suspended:
+		return
+	if skip_next_delta:
+		skip_next_delta = false
+		return
+	if clear_timer >= 0.0:
+		clear_timer = maxf(0.0, clear_timer - minf(delta, 0.1))
+		if clear_timer == 0.0:
+			clear_timer = -1.0
+			if guide != null:
+				guide.mark_completed(core.levels[core.state["levelIdx"]]["id"])
+			var next_index: int = (int(core.state["levelIdx"]) + 1) % core.levels.size()
+			core.init_level(next_index, int(core.state["speed"]))
+			status_message = "%d레벨을 완료했습니다! 처음부터 다시 즐길 수 있습니다." % core.levels.size() if next_index == 0 else "다음 레벨입니다."
+			dirty = true
+			_save(true)
+			_render_static()
+		return
+	var result: Dictionary = core.update_progress(delta)
+	if result["moved"]:
+		dirty = true
+		track_view.queue_redraw()
+	if result["collected"]:
+		_render_cars()
+	_save(result["collected"])
+	_refresh_status()
+
+func _refresh_status() -> void:
+	capacity_label.text = "Track %d / %d" % [core.state["track"].size(), core.levels[core.state["levelIdx"]]["trackCapacity"]]
+	if core.is_cleared():
+		status_label.text = "클리어! 다음 레벨로 넘어갑니다."
+		if clear_timer < 0.0:
+			clear_timer = 1.2
+	elif core.check_deadlock():
+		status_label.text = "막힘 상태입니다. Undo 또는 Reset을 사용하세요."
+	else:
+		status_label.text = status_message
+
+func _render_static() -> void:
+	var level: Dictionary = core.levels[core.state["levelIdx"]]
+	level_label.text = "%d / %d · %s" % [int(core.state["levelIdx"]) + 1, core.levels.size(), level.get("name", level["id"])]
+	_refresh_tutorial()
+	speed_button.text = str(core.state["speed"]) + "x"
+	save_label.text = save_message
+	_render_cars()
+	track_view.queue_redraw()
+
+func _render_cars() -> void:
+	for child in cars_box.get_children():
+		cars_box.remove_child(child)
+		child.queue_free()
+	for car in core.state["cars"]:
+		var button := Button.new()
+		var complete: bool = core.state["cleared"].has(car["id"])
+		var blocks := PackedStringArray()
+		for color in car["blocks"]:
+			blocks.append(String(color).left(1).to_upper())
+		button.text = "%s · %s  %s\n앞 → %s → 뒤" % [car["id"], car["color"], "CLEARED" if complete else "%d/%d" % [car["blocks"].size(), car["capacity"]], "  ".join(blocks) if not blocks.is_empty() else "empty"]
+		button.custom_minimum_size = Vector2(0, 80)
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("#e0f5e8") if complete else Color("#ffffff")
+		style.border_color = TrackScript.color_for(car["color"])
+		var highlight := false
+		if guide != null and hint_visible and core.state["history"].is_empty():
+			highlight = guide.lesson(level_id()).get("focusCarId") == car["id"]
+		style.set_border_width_all(5 if highlight else 2)
+		if highlight:
+			button.text = "▶ " + button.text
+		style.set_corner_radius_all(12)
+		for style_name in ["normal", "hover", "pressed", "disabled", "focus"]:
+			button.add_theme_stylebox_override(style_name, style)
+		button.add_theme_color_override("font_color", TrackScript.color_for(car["color"]).darkened(0.4))
+		for color_name in ["font_hover_color", "font_pressed_color", "font_focus_color"]:
+			button.add_theme_color_override(color_name, TrackScript.color_for(car["color"]).darkened(0.4))
+		button.add_theme_color_override("font_disabled_color", Color("#536375"))
+		button.disabled = car["locked"] or complete or car["blocks"].is_empty()
+		button.pressed.connect(_on_car_pressed.bind(String(car["id"])))
+		cars_box.add_child(button)
+	undo_button.disabled = core.state["history"].is_empty()
+
+func _on_car_pressed(car_id: String) -> void:
+	if core == null:
+		return
+	var result: String = core.launch_car(car_id)
+	if result == "launched":
+		status_message = car_id + "에서 블록을 사출했습니다."
+		dirty = true
+		_save(true)
+		_render_cars()
+		track_view.queue_redraw()
+		_refresh_status()
+	elif result == "full":
+		status_label.text = "트랙이 가득 찼습니다. 수집을 기다리거나 Undo를 사용하세요."
+
+func _on_speed_pressed() -> void:
+	if core == null:
+		return
+	core.state["speed"] = 2 if core.state["speed"] == 1 else 1
+	speed_button.text = str(core.state["speed"]) + "x"
+	dirty = true
+	_save(true)
+
+func _on_undo_pressed() -> void:
+	if core == null or not core.undo():
+		return
+	clear_timer = -1.0
+	status_message = "직전 사출 또는 셔플 전으로 되돌렸습니다."
+	dirty = true
+	_save(true)
+	_render_static()
+	_refresh_status()
+
+func _on_shuffle_pressed() -> void:
+	if core == null or not core.shuffle():
+		return
+	status_message = "차량 표시 순서를 섞었습니다. 막힘 해소를 보장하지 않습니다."
+	dirty = true
+	_save(true)
+	_render_cars()
+	_refresh_status()
+
+func _on_reset_pressed() -> void:
+	if core == null:
+		return
+	clear_timer = -1.0
+	core.init_level(int(core.state["levelIdx"]), int(core.state["speed"]))
+	active_lesson_id = ""
+	core.accumulator = 0.0
+	skip_next_delta = true
+	status_message = "현재 레벨을 다시 시작합니다."
+	dirty = true
+	_save(true)
+	_render_static()
+	_refresh_status()
+
+func level_id() -> String:
+	return core.levels[core.state["levelIdx"]]["id"]
+
+func _load_tutorials() -> void:
+	var file := FileAccess.open("res://data/tutorials.json", FileAccess.READ)
+	if file == null:
+		return
+	var parser := JSON.new()
+	var error := parser.parse(file.get_as_text())
+	file.close()
+	if error == OK and GuideScript.valid_catalog(parser.data, core.levels):
+		guide = GuideScript.new(parser.data, core.levels)
+
+func _refresh_tutorial() -> void:
+	tutorial_box.visible = guide != null
+	if guide == null:
+		return
+	var current_id := level_id()
+	if active_lesson_id != current_id:
+		active_lesson_id = current_id
+		hint_visible = guide.should_show(current_id)
+	var entry: Dictionary = guide.lesson(current_id)
+	hint_label.text = "%s\n%s" % [entry.get("concept", ""), entry.get("hintKo", "")]
+	hint_panel.visible = hint_visible
+	hint_button.text = "힌트 닫기" if hint_visible else "힌트 보기"
+
+func _on_hint_pressed() -> void:
+	if core == null or guide == null:
+		return
+	if hint_visible:
+		_on_tutorial_dismissed()
+	else:
+		hint_visible = true
+		_refresh_tutorial()
+		_render_cars()
+
+func _on_tutorial_dismissed() -> void:
+	if core == null or guide == null:
+		return
+	if guide.dismiss(level_id()):
+		dirty = true
+		_save(true)
+	hint_visible = false
+	_refresh_tutorial()
+	_render_cars()
+===== END FILE =====
+
+===== FILE: godot-project/scenes/Main.tscn =====
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+
+[ext_resource type="Script" path="res://scripts/TrackView.gd" id="2_track"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+theme_override_font_sizes/font_size = 20
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.956863, 0.968627, 0.984314, 1)
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Scroll" type="ScrollContainer" parent="SafeMargin"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="SafeMargin/Scroll"]
+size_flags_horizontal = 3
+layout_mode = 2
+
+[node name="Header" type="VBoxContainer" parent="SafeMargin/Scroll/VBox"]
+layout_mode = 2
+
+[node name="LevelLbl" type="Label" parent="SafeMargin/Scroll/VBox/Header"]
+layout_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.141176, 0.196078, 0.290196, 1)
+text = "Level 1"
+
+[node name="Controls" type="HBoxContainer" parent="SafeMargin/Scroll/VBox/Header"]
+layout_mode = 2
+
+[node name="SpeedBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 52)
+text = "1x"
+
+[node name="UndoBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 52)
+text = "Undo"
+
+[node name="ShuffleBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 52)
+text = "Shuffle"
+
+[node name="ResetBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(100, 52)
+text = "다시하기"
+
+[node name="Board" type="VBoxContainer" parent="SafeMargin/Scroll/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TutorialBox" type="VBoxContainer" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+
+[node name="HintButton" type="Button" parent="SafeMargin/Scroll/VBox/Board/TutorialBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "힌트 보기"
+
+[node name="HintPanel" type="PanelContainer" parent="SafeMargin/Scroll/VBox/Board/TutorialBox"]
+layout_mode = 2
+visible = false
+
+[node name="Content" type="VBoxContainer" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel"]
+layout_mode = 2
+
+[node name="HintLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 3
+
+[node name="DismissButton" type="Button" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "알겠어요"
+
+[node name="TrackArea" type="Control" parent="SafeMargin/Scroll/VBox/Board"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+
+script = ExtResource("2_track")
+
+[node name="StatusLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.419608, 0.478431, 0.564706, 1)
+autowrap_mode = 3
+text = "진행 중"
+
+[node name="SaveLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.32, 0.42, 1)
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = "자동 저장"
+
+[node name="CapacityLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.20, 0.29, 1)
+text = "Track 0 / 0"
+
+[node name="Cars" type="VBoxContainer" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/SpeedBtn" to="." method="_on_speed_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/UndoBtn" to="." method="_on_undo_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/ShuffleBtn" to="." method="_on_shuffle_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/ResetBtn" to="." method="_on_reset_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Board/TutorialBox/HintButton" to="." method="_on_hint_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content/DismissButton" to="." method="_on_tutorial_dismissed"]
+===== END FILE =====
+
+===== FILE: godot-project/autoload/GameManager.gd =====
+extends Node
+
+const DEFAULT_PREFIX := "user://carloop_save"
+var save_path: String
+var temp_path: String
+var backup_path: String
+var restored_from_backup := false
+
+func _init(prefix: String = DEFAULT_PREFIX) -> void:
+	configure_paths(prefix)
+
+func configure_paths(prefix: String) -> void:
+	save_path = prefix + ".json"
+	temp_path = prefix + ".tmp"
+	backup_path = prefix + ".bak"
+
+func _read_file(path: String) -> Variant:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null or file.get_length() > 4194304:
+		return null
+	var content := file.get_as_text()
+	file.close()
+	var parser := JSON.new()
+	if parser.parse(content) != OK:
+		return null
+	return parser.data
+
+func _accepted(data: Variant, validator: Callable) -> bool:
+	return data is Dictionary and validator.is_valid() and validator.call(data) == true
+
+func _rename(source: String, target: String) -> Error:
+	return DirAccess.rename_absolute(ProjectSettings.globalize_path(source), ProjectSettings.globalize_path(target))
+
+func _remove(path: String) -> Error:
+	return DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+func load_progress(validator: Callable) -> Dictionary:
+	restored_from_backup = false
+	var primary: Variant = _read_file(save_path)
+	if _accepted(primary, validator):
+		return primary
+	var backup: Variant = _read_file(backup_path)
+	if _accepted(backup, validator):
+		restored_from_backup = true
+		return backup
+	return {}
+
+func save_progress(runtime_state: Dictionary, validator: Callable) -> bool:
+	if not _accepted(runtime_state, validator):
+		return false
+	var directory_error := DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(save_path.get_base_dir()))
+	if directory_error != OK:
+		return false
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify(runtime_state))
+	file.flush()
+	var write_error := file.get_error()
+	file.close()
+	if write_error != OK or not _accepted(_read_file(temp_path), validator):
+		return false
+	var primary_valid := _accepted(_read_file(save_path), validator)
+	if primary_valid:
+		if FileAccess.file_exists(backup_path) and _remove(backup_path) != OK:
+			return false
+		if _rename(save_path, backup_path) != OK:
+			return false
+	elif FileAccess.file_exists(save_path) and _remove(save_path) != OK:
+		return false
+	if _rename(temp_path, save_path) != OK:
+		if FileAccess.file_exists(backup_path) and not FileAccess.file_exists(save_path):
+			DirAccess.copy_absolute(ProjectSettings.globalize_path(backup_path), ProjectSettings.globalize_path(save_path))
+		return false
+	return true
+===== END FILE =====
+
+===== FILE: godot-project/scripts/HeadlessTest.gd =====
+extends SceneTree
+
+const CoreScript = preload("res://scripts/GameCore.gd")
+const SaveScript = preload("res://autoload/GameManager.gd")
+const MainScene = preload("res://scenes/Main.tscn")
+const GuideScript = preload("res://scripts/TutorialGuide.gd")
+var live_levels: Array = []
+var live_solutions: Dictionary = {}
+var levels: Array = []
+var failures: Array[String] = []
+var checks := 0
+var test_prefix := ""
+
+func _init() -> void:
+	call_deferred("_run")
+
+func check(condition: bool, message: String) -> void:
+	checks += 1
+	if not condition:
+		failures.append(message)
+		print("FAIL: ", message)
+
+func advance(core: RefCounted, seconds: float = 4.2, rate: int = 60) -> void:
+	for index in range(int(round(seconds * rate))):
+		core.update_progress(1.0 / rate)
+
+func color_totals(core: RefCounted) -> Dictionary:
+	var totals := {}
+	for car in core.state["cars"]:
+		for color in car["blocks"]:
+			totals[color] = totals.get(color, 0) + 1
+	for item in core.state["track"]:
+		totals[item["color"]] = totals.get(item["color"], 0) + 1
+	return totals
+
+func solve(core: RefCounted) -> void:
+	for car_id in ["A", "B", "C"]:
+		for index in range(4):
+			check(core.launch_car(car_id) == "launched", "solution launch " + car_id)
+			advance(core)
+			check(color_totals(core) == {"red": 4, "blue": 4, "yellow": 4}, "per-color conservation")
+
+func solve_current(core: RefCounted) -> void:
+	var current_id: String = core.levels[core.state["levelIdx"]]["id"]
+	for car_id in live_solutions[current_id]["launches"]:
+		check(core.launch_car(car_id) == "launched", "production solution launch " + car_id)
+		advance(core)
+		check(core.is_valid_save(core.export_save()), "production state conserved")
+
+func test_tutorials() -> void:
+	var catalog: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/tutorials.json"))
+	check(GuideScript.valid_catalog(catalog, live_levels), "tutorial catalog matches live levels")
+	check(not GuideScript.valid_catalog([], live_levels), "missing lessons rejected")
+	var invalid_catalog: Array = catalog.duplicate(true)
+	invalid_catalog[0]["difficulty"] = 1.5
+	check(not GuideScript.valid_catalog(invalid_catalog, live_levels), "fractional difficulty rejected")
+	invalid_catalog = catalog.duplicate(true)
+	invalid_catalog[0]["focusCarId"] = "unknown"
+	check(not GuideScript.valid_catalog(invalid_catalog, live_levels), "unknown focus rejected")
+	invalid_catalog = catalog.duplicate(true)
+	invalid_catalog[0]["hintKo"] = "long".repeat(20)
+	check(not GuideScript.valid_catalog(invalid_catalog, live_levels), "overlong hint rejected")
+	var guide = GuideScript.new(catalog, live_levels)
+	for index in range(live_levels.size()):
+		check(guide.should_show(live_levels[index]["id"]) == (index < 5), "only first five auto-show")
+	check(guide.dismiss("level-001") and not guide.should_show("level-001"), "dismiss records seen")
+	check(not guide.dismiss("level-001") and not guide.dismiss("unknown"), "dismiss is idempotent")
+	guide.mark_completed("level-002")
+	guide.mark_completed("level-002")
+	check(guide.completed == ["level-002"] and guide.seen.has("level-002"), "completion recorded once")
+	var restored = GuideScript.new(catalog, live_levels)
+	var saved: Dictionary = guide.export_progress()
+	check(restored.restore_progress(saved), "tutorial progress round-trip")
+	for invalid in [null, [], {}, {"version": 1, "seen": ["unknown"], "completed": []}, {"version": 1, "seen": ["level-001", "level-001"], "completed": []}, {"version": 1, "seen": [], "completed": "bad"}]:
+		check(not restored.restore_progress(invalid), "invalid tutorial progress rejected")
+	check(restored.export_progress() == saved, "invalid tutorial progress leaves state intact")
+
+func test_core() -> void:
+	check(CoreScript.valid_levels(levels), "shared levels accepted")
+	check(not CoreScript.valid_levels([]), "empty level list rejected")
+	for level_index in range(levels.size()):
+		var core = CoreScript.new(levels)
+		core.init_level(level_index)
+		solve(core)
+		check(core.is_cleared(), "level %d solvable" % level_index)
+		check(core.state["track"].is_empty(), "cleared track empty")
+		check(core.undo() and not core.is_cleared(), "undo cancels completed state")
+
+	var slow = CoreScript.new(levels)
+	var fast = CoreScript.new(levels)
+	var double_speed = CoreScript.new(levels)
+	for core in [slow, fast, double_speed]:
+		core.launch_car("A")
+	double_speed.state["speed"] = 2
+	advance(slow, 0.5, 60)
+	advance(fast, 0.5, 120)
+	advance(double_speed, 0.5, 60)
+	check(is_equal_approx(slow.state["track"][0]["progress"], fast.state["track"][0]["progress"]), "60/120Hz parity")
+	check(is_equal_approx(double_speed.state["track"][0]["progress"], slow.state["track"][0]["progress"] * 2.0), "2x speed")
+	var unchanged: Dictionary = slow.state.duplicate(true)
+	slow.update_progress(NAN)
+	slow.update_progress(INF)
+	slow.update_progress(-1.0)
+	check(slow.state == unchanged, "nonfinite/negative delta ignored")
+
+	var capped = CoreScript.new(levels)
+	capped.launch_car("A")
+	capped.update_progress(10.0)
+	check(is_equal_approx(capped.state["track"][0]["progress"], 0.3), "long delta capped")
+	var full_levels := levels.duplicate(true)
+	full_levels[0]["trackCapacity"] = 1
+	var full = CoreScript.new(full_levels)
+	full.launch_car("A")
+	check(full.check_deadlock(), "full uncollectable track is deadlocked with nonempty cars")
+	check(full.launch_car("B") == "full", "full track blocks launches")
+	check(full.undo() and not full.check_deadlock(), "undo resolves deadlock")
+	for index in range(25):
+		full.shuffle()
+	check(full.state["history"].size() == 20, "history bounded at twenty")
+
+	var restored = CoreScript.new(levels)
+	check(restored.load_state(JSON.parse_string(JSON.stringify(slow.export_save()))), "JSON round-trip loads")
+	var prior_id: int = restored.state["track"][0]["id"]
+	restored.launch_car("A")
+	check(restored.state["track"][1]["id"] > prior_id, "restored IDs stay unique")
+	var initial: Dictionary = restored.state.duplicate(true)
+	for invalid in [null, [], {}, {"version": 4}, {"version": 3, "state": {}}]:
+		check(not restored.load_state(invalid), "bad envelope rejected")
+	check(restored.state == initial, "invalid saves do not mutate current state")
+
+	var payload: Dictionary = slow.export_save()
+	var invalid_saves: Array = []
+	for field in ["levelIdx", "speed"]:
+		var fractional: Dictionary = payload.duplicate(true)
+		fractional["state"][field] = 1.5
+		invalid_saves.append(fractional)
+		var nonfinite: Dictionary = payload.duplicate(true)
+		nonfinite["state"][field] = INF
+		invalid_saves.append(nonfinite)
+	for value in [null, "wrong", 7]:
+		for field in ["cars", "track", "cleared", "history"]:
+			var wrong_type: Dictionary = payload.duplicate(true)
+			wrong_type["state"][field] = value
+			invalid_saves.append(wrong_type)
+	for value in [0, -1, 1.5, NAN, INF]:
+		var bad_id: Dictionary = payload.duplicate(true)
+		bad_id["state"]["track"][0]["id"] = value
+		invalid_saves.append(bad_id)
+	var duplicate: Dictionary = payload.duplicate(true)
+	duplicate["state"]["track"].append(duplicate["state"]["track"][0].duplicate())
+	invalid_saves.append(duplicate)
+	var duplicate_clear: Dictionary = payload.duplicate(true)
+	duplicate_clear["state"]["cleared"] = ["A", "A"]
+	invalid_saves.append(duplicate_clear)
+	var wrong_metadata: Dictionary = payload.duplicate(true)
+	wrong_metadata["state"]["cars"][0]["locked"] = 0
+	invalid_saves.append(wrong_metadata)
+	var missing_blocks: Dictionary = payload.duplicate(true)
+	missing_blocks["state"]["cars"][1].erase("blocks")
+	invalid_saves.append(missing_blocks)
+	var color_loss: Dictionary = payload.duplicate(true)
+	color_loss["state"]["cars"][1]["blocks"].pop_back()
+	invalid_saves.append(color_loss)
+	var wrong_levels: Dictionary = payload.duplicate(true)
+	wrong_levels["levels"] = "obsolete"
+	invalid_saves.append(wrong_levels)
+	for invalid in invalid_saves:
+		check(not restored.load_state(invalid), "malformed state rejected")
+	check(restored.state == initial, "malformed snapshots leave state intact")
+
+func write_text(path: String, text: String) -> void:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	check(file != null, "test file writable")
+	if file != null:
+		file.store_string(text)
+		file.close()
+
+func test_storage() -> void:
+	var core = CoreScript.new(levels)
+	var manager = SaveScript.new(test_prefix)
+	var validator := Callable(core, "is_valid_save")
+	check(manager.save_progress(core.export_save(), validator), "first save")
+	core.launch_car("A")
+	var first: Dictionary = core.export_save()
+	check(manager.save_progress(first, validator), "save rotates valid primary to backup")
+	check(core.is_valid_save(manager.load_progress(validator)), "normal load")
+	write_text(manager.save_path, "{}")
+	var recovered: Dictionary = manager.load_progress(validator)
+	check(manager.restored_from_backup and core.is_valid_save(recovered), "semantic corruption falls back to backup")
+	var previous_backup := FileAccess.get_file_as_string(manager.backup_path)
+	check(manager.save_progress(first, validator), "save after recovery succeeds")
+	check(FileAccess.get_file_as_string(manager.backup_path) == previous_backup, "corrupt primary cannot overwrite valid backup")
+	write_text(manager.save_path, "{broken")
+	check(core.is_valid_save(manager.load_progress(validator)), "invalid JSON falls back to backup")
+	write_text(manager.backup_path, "{}")
+	check(manager.load_progress(validator).is_empty(), "no valid save returns new-game candidate")
+	check(manager.save_progress(first, validator), "fresh save after two bad candidates")
+	manager.temp_path = test_prefix + "/missing/save.tmp"
+	check(not manager.save_progress(first, validator), "write error reported without crash")
+	check(core.is_valid_save(manager.load_progress(validator)), "failed write preserves good primary")
+	manager.free()
+
+func test_controller() -> void:
+	var manager := root.get_node("GameManager")
+	var original_path: String = manager.save_path.trim_suffix(".json")
+	manager.configure_paths(test_prefix + "_controller")
+	var main = MainScene.instantiate()
+	main.set_process(false)
+	root.add_child(main)
+	await process_frame
+	main.set_process(false)
+	check(main.core != null, "Main scene initializes")
+	check(main.track_view.core == main.core, "renderer shares core")
+	check(main.guide != null and main.hint_visible, "first lesson auto-shown")
+	check(main.cars_box.get_child(1).disabled == false, "tutorial does not block another car")
+	main._on_tutorial_dismissed()
+	check(not main.hint_visible and main.guide.seen.has("level-001"), "dismiss hides and records lesson")
+	var lesson_save: Dictionary = manager.load_progress(Callable(main.core, "is_valid_save"))
+	check(lesson_save["progress"]["seen"].has("level-001"), "dismiss saved immediately")
+	main._on_hint_pressed()
+	check(main.hint_visible, "dismissed hint can be reopened")
+	main._on_tutorial_dismissed()
+	main._on_car_pressed("A")
+	main._on_speed_pressed()
+	var saved: Dictionary = manager.load_progress(Callable(main.core, "is_valid_save"))
+	check(saved["state"]["speed"] == 2 and saved["state"]["track"].size() == 1, "controller saves launch and speed")
+	main._on_undo_pressed()
+	check(main.core.state["track"].is_empty() and main.core.state["speed"] == 2, "controller undo keeps chosen speed")
+	main._on_reset_pressed()
+	check(main.core.state["speed"] == 2, "retry keeps chosen speed")
+	solve_current(main.core)
+	main._refresh_status()
+	check(main.clear_timer > 0.0, "clear schedules a single transition")
+	check(not main.guide.completed.has("level-001"), "completion waits for transition")
+	main._on_undo_pressed()
+	check(main.clear_timer < 0.0 and not main.core.is_cleared(), "undo cancels transition")
+	main._process(0.1)
+	main._process(0.1)
+	check(main.core.state["levelIdx"] == 0, "cancelled transition does not advance")
+	main._on_reset_pressed()
+	solve_current(main.core)
+	main._refresh_status()
+	main.clear_timer = 0.05
+	main.skip_next_delta = false
+	main._process(0.05)
+	check(main.core.state["levelIdx"] == 1 and main.clear_timer < 0.0, "exact-zero transition advances once and resets")
+	main._process(0.05)
+	check(main.core.state["levelIdx"] == 1, "transition does not repeat")
+	check(main.guide.completed.has("level-001") and main.hint_visible, "completion recorded and next lesson shown")
+	main._on_car_pressed("A")
+	var before: float = main.core.state["track"][0]["progress"]
+	main._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	main._process(10.0)
+	check(main.core.state["track"][0]["progress"] == before, "background simulation paused")
+	main._notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	main._process(10.0)
+	check(main.core.state["track"][0]["progress"] == before, "resume skips elapsed background time")
+	var expected_state: Dictionary = main.core.state.duplicate(true)
+	main.free()
+	var restored_main = MainScene.instantiate()
+	restored_main.set_process(false)
+	root.add_child(restored_main)
+	await process_frame
+	restored_main.set_process(false)
+	check(JSON.stringify(restored_main.core.state) == JSON.stringify(expected_state), "scene reload restores current level and state")
+	check(restored_main.guide.completed.has("level-001") and restored_main.guide.seen.has("level-001"), "scene reload restores tutorial records")
+	restored_main._on_reset_pressed()
+	check(restored_main.core.state["levelIdx"] == 1 and restored_main.core.state["track"].is_empty(), "retry keeps current level")
+	check(restored_main.guide.completed.has("level-001"), "retry preserves completion records")
+	restored_main.free()
+	manager.configure_paths(original_path)
+
+func cleanup() -> void:
+	for prefix in [test_prefix, test_prefix + "_controller"]:
+		for suffix in [".json", ".tmp", ".bak"]:
+			var path: String = ProjectSettings.globalize_path(prefix + suffix)
+			if FileAccess.file_exists(path):
+				DirAccess.remove_absolute(path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_prefix.get_base_dir()))
+
+func _run() -> void:
+	var file := FileAccess.open("res://tests/fixtures/reference_levels.json", FileAccess.READ)
+	if file == null:
+		print("FAIL: cannot load shared levels")
+		quit(1)
+		return
+	levels = JSON.parse_string(file.get_as_text())
+	file.close()
+	test_prefix = "user://native_tests_%d_%d/save" % [OS.get_process_id(), Time.get_ticks_msec()]
+	live_levels = JSON.parse_string(FileAccess.get_file_as_string("res://data/levels.json"))
+	live_solutions = JSON.parse_string(FileAccess.get_file_as_string("res://data/level_solutions.json"))
+	test_core()
+	test_tutorials()
+	test_storage()
+	await test_controller()
+	cleanup()
+	if failures.is_empty():
+		print("PASS: %d checks; core, saves and controller" % checks)
+		quit(0)
+	else:
+		print("FAIL: %d/%d checks failed" % [failures.size(), checks])
+		quit(1)
+===== END FILE =====
+
+===== FILE: godot-project/scripts/TrackView.gd =====
+extends Control
+
+var core
+
+func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	resized.connect(queue_redraw)
+
+func configure(next_core: RefCounted) -> void:
+	core = next_core
+	queue_redraw()
+
+static func color_for(color: String) -> Color:
+	return {"red": Color("#ef6464"), "blue": Color("#478ee8"), "yellow": Color("#f6bd35")}.get(color, Color.GRAY)
+
+func _draw() -> void:
+	if core == null:
+		return
+	var level: Dictionary = core.levels[core.state["levelIdx"]]
+	var nodes: Array = level["trackNodes"]
+	var extent := Vector2.ONE
+	for point in nodes:
+		extent.x = maxf(extent.x, float(point[0]))
+		extent.y = maxf(extent.y, float(point[1]))
+	var positions := PackedVector2Array()
+	for point in nodes:
+		positions.append(Vector2(40, 48) + Vector2(float(point[0]), float(point[1])) / extent * (size - Vector2(80, 88)).max(Vector2.ONE))
+	var path := positions.duplicate()
+	path.append(positions[0])
+	draw_style_box(_panel_style(), Rect2(Vector2.ZERO, size))
+	draw_polyline(path, Color("#ccd8e8"), 5.0, true)
+	for index in range(positions.size()):
+		draw_circle(positions[index], 10.0, Color("#dfe8f5"))
+		for car in level["cars"]:
+			if int(car["lane"]) % nodes.size() == index:
+				draw_string(ThemeDB.fallback_font, positions[index] + Vector2(-8, -18), car["id"], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, color_for(car["color"]))
+	for item in core.state["track"]:
+		var progress := float(item["progress"])
+		var index := int(progress)
+		var position := positions[index].lerp(positions[(index + 1) % positions.size()], progress - index)
+		draw_circle(position, 18.0, color_for(item["color"]))
+		draw_string(ThemeDB.fallback_font, position + Vector2(-6, 6), String(item["color"]).left(1).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("#14253b"))
+
+func _panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#f7faff")
+	style.set_corner_radius_all(20)
+	return style
+===== END FILE =====

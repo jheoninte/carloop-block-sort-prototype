@@ -1,0 +1,2371 @@
+{
+  "levels": [
+    {
+      "id": "level-001",
+      "name": "First Tap",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "blue"
+          ],
+          "lane": 1,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-002",
+      "name": "Color Match",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "blue"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "red"
+          ],
+          "lane": 2,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-003",
+      "name": "Full Capacity",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "blue",
+            "red"
+          ],
+          "lane": 3,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-004",
+      "name": "Track Buffer",
+      "trackCapacity": 3,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "blue",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "red",
+            "blue"
+          ],
+          "lane": 4,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-005",
+      "name": "Jam & Undo",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "blue",
+            "blue"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "red",
+            "red"
+          ],
+          "lane": 5,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-006",
+      "name": "Trio Intro",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 2,
+          "blocks": [
+            "yellow",
+            "red"
+          ],
+          "lane": 1,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "blue"
+          ],
+          "lane": 2,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-007",
+      "name": "Mixed Order",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "yellow",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "yellow",
+            "red",
+            "blue"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "blue",
+            "yellow"
+          ],
+          "lane": 4,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-008",
+      "name": "Tight Lane",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "red",
+            "yellow"
+          ],
+          "lane": 3,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "blue",
+            "yellow"
+          ],
+          "lane": 6,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-009",
+      "name": "Clean Entry",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "yellow",
+            "red"
+          ],
+          "lane": 1,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "yellow",
+            "red",
+            "blue"
+          ],
+          "lane": 2,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-010",
+      "name": "Double Red",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "yellow"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "blue",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "red"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "yellow",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "red"
+          ],
+          "lane": 6,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-011",
+      "name": "Asymmetric Load",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "red"
+          ],
+          "lane": 3,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "red"
+          ],
+          "lane": 6,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-012",
+      "name": "Cross Feed",
+      "trackCapacity": 6,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "yellow",
+            "red",
+            "yellow"
+          ],
+          "lane": 1,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 2,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-013",
+      "name": "Narrow Loop",
+      "trackCapacity": 4,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "red",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "yellow",
+            "red",
+            "blue",
+            "blue"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "yellow",
+            "yellow"
+          ],
+          "lane": 8,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-014",
+      "name": "Four Fleet",
+      "trackCapacity": 6,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "yellow",
+            "red"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "blue",
+            "yellow"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "yellow",
+            "yellow",
+            "yellow"
+          ],
+          "lane": 6,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-015",
+      "name": "Deep Stack",
+      "trackCapacity": 6,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 5,
+          "blocks": [
+            "blue",
+            "blue",
+            "yellow",
+            "yellow",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 5,
+          "blocks": [
+            "red",
+            "red",
+            "yellow",
+            "yellow",
+            "blue"
+          ],
+          "lane": 3,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 5,
+          "blocks": [
+            "red",
+            "red",
+            "blue",
+            "blue",
+            "yellow"
+          ],
+          "lane": 6,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-016",
+      "name": "Relay Sort",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "blue",
+            "blue"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "yellow",
+            "yellow",
+            "yellow"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 3,
+          "blocks": [
+            "red",
+            "red",
+            "red"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "red",
+            "red"
+          ],
+          "lane": 6,
+          "locked": false
+        },
+        {
+          "id": "E",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 8,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-017",
+      "name": "Five Lanes",
+      "trackCapacity": 7,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "yellow",
+            "red",
+            "yellow"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "red",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "red",
+            "red"
+          ],
+          "lane": 6,
+          "locked": false
+        },
+        {
+          "id": "E",
+          "color": "blue",
+          "capacity": 3,
+          "blocks": [
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 8,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-018",
+      "name": "Precision Slot",
+      "trackCapacity": 5,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "red",
+            "red"
+          ],
+          "lane": 1,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "yellow",
+            "red",
+            "red",
+            "blue"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "yellow"
+          ],
+          "lane": 7,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "blue",
+            "yellow"
+          ],
+          "lane": 10,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-019",
+      "name": "Heavy Traffic",
+      "trackCapacity": 8,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 5,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue",
+            "yellow",
+            "red"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 5,
+          "blocks": [
+            "yellow",
+            "red",
+            "yellow",
+            "red",
+            "blue"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 5,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "blue",
+            "yellow"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "red",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "yellow"
+          ],
+          "lane": 7,
+          "locked": false
+        },
+        {
+          "id": "E",
+          "color": "yellow",
+          "capacity": 2,
+          "blocks": [
+            "red",
+            "yellow"
+          ],
+          "lane": 10,
+          "locked": false
+        }
+      ]
+    },
+    {
+      "id": "level-020",
+      "name": "Grand Loop",
+      "trackCapacity": 6,
+      "trackNodes": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "cars": [
+        {
+          "id": "A",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "yellow",
+            "blue",
+            "yellow"
+          ],
+          "lane": 0,
+          "locked": false
+        },
+        {
+          "id": "B",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "yellow",
+            "red",
+            "yellow"
+          ],
+          "lane": 2,
+          "locked": false
+        },
+        {
+          "id": "C",
+          "color": "yellow",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 4,
+          "locked": false
+        },
+        {
+          "id": "D",
+          "color": "red",
+          "capacity": 4,
+          "blocks": [
+            "red",
+            "blue",
+            "red",
+            "blue"
+          ],
+          "lane": 7,
+          "locked": false
+        },
+        {
+          "id": "E",
+          "color": "blue",
+          "capacity": 4,
+          "blocks": [
+            "blue",
+            "red",
+            "blue",
+            "red"
+          ],
+          "lane": 10,
+          "locked": false
+        }
+      ]
+    }
+  ],
+  "solutions": {
+    "level-001": {
+      "launches": [
+        "A",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-002": {
+      "launches": [
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-003": {
+      "launches": [
+        "A",
+        "B",
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-004": {
+      "launches": [
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-005": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-006": {
+      "launches": [
+        "A",
+        "A",
+        "C",
+        "C",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-007": {
+      "launches": [
+        "A",
+        "A",
+        "C",
+        "C",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-008": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "C",
+        "B",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-009": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "C",
+        "C",
+        "C",
+        "B",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-010": {
+      "launches": [
+        "A",
+        "A",
+        "C",
+        "C",
+        "B",
+        "B",
+        "D",
+        "D"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-011": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "C",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-012": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "C",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-013": {
+      "launches": [
+        "A",
+        "A",
+        "B",
+        "B",
+        "C",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-014": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "B",
+        "C",
+        "C",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-015": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "C",
+        "C",
+        "B",
+        "B",
+        "C",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-016": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "C",
+        "C",
+        "C",
+        "B",
+        "B",
+        "B",
+        "D",
+        "E",
+        "E"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-017": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "C",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C",
+        "D",
+        "E",
+        "E"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-018": {
+      "launches": [
+        "D",
+        "D",
+        "C",
+        "C",
+        "C",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-019": {
+      "launches": [
+        "A",
+        "A",
+        "E",
+        "A",
+        "A",
+        "C",
+        "B",
+        "B",
+        "D",
+        "B",
+        "B",
+        "C",
+        "D",
+        "C",
+        "C"
+      ],
+      "waitSeconds": 4.2
+    },
+    "level-020": {
+      "launches": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "C",
+        "B",
+        "B",
+        "D",
+        "B",
+        "C",
+        "D",
+        "C",
+        "C",
+        "D",
+        "D",
+        "E",
+        "E",
+        "E",
+        "E"
+      ],
+      "waitSeconds": 4.2
+    }
+  },
+  "tutorials": [
+    {
+      "levelId": "level-001",
+      "concept": "탭 사출 기초",
+      "difficulty": 1,
+      "hintKo": "A 차량을 탭해 맨 앞 블록을 트랙으로 보내세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-002",
+      "concept": "목표 색 수집",
+      "difficulty": 1,
+      "hintKo": "차량을 비우면 목표 색 블록을 수집할 수 있어요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-003",
+      "concept": "차량 완성 조건",
+      "difficulty": 1,
+      "hintKo": "목표 색 블록으로 빈칸을 채우면 차량이 완성돼요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-004",
+      "concept": "트랙 여유 활용",
+      "difficulty": 1,
+      "hintKo": "트랙의 빈칸을 보면서 사출 순서를 골라보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-005",
+      "concept": "막힘과 Undo",
+      "difficulty": 2,
+      "hintKo": "막히면 Undo로 되돌리고 다른 순서를 시도하세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-006",
+      "concept": "3색 순환 시작",
+      "difficulty": 2,
+      "hintKo": "트랙 블록을 받을 차량의 색과 빈칸을 살펴보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-007",
+      "concept": "혼합 배열 정리",
+      "difficulty": 2,
+      "hintKo": "뒤에 있는 목표 색을 남기고 앞 블록을 빼보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-008",
+      "concept": "좁은 트랙 관리",
+      "difficulty": 2,
+      "hintKo": "노란 블록을 받을 차량도 미리 준비해 보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-009",
+      "concept": "입구 통과 수집",
+      "difficulty": 2,
+      "hintKo": "목표 색도 뒤에 다른 색이 있으면 사출할 수 있어요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-010",
+      "concept": "동일 색 다중 차량",
+      "difficulty": 3,
+      "hintKo": "목표 색이 같은 두 차량의 수집 공간을 살펴보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-011",
+      "concept": "비대칭 수용량",
+      "difficulty": 3,
+      "hintKo": "큰 차량을 비울 때 트랙의 남은 칸을 확인하세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-012",
+      "concept": "교차 공급 루프",
+      "difficulty": 3,
+      "hintKo": "한 차량에 모인 같은 색은 그대로 두어도 좋아요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-013",
+      "concept": "잔여 목표 색 보존",
+      "difficulty": 3,
+      "hintKo": "뒤에 모인 같은 색은 남기고 앞의 다른 색만 빼내세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-014",
+      "concept": "완성 차량 제외",
+      "difficulty": 3,
+      "hintKo": "완성된 차량은 그대로 두고 남은 차량을 정리하세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-015",
+      "concept": "5슬롯 대용량",
+      "difficulty": 4,
+      "hintKo": "맨 뒤의 목표 색까지 모두 내보낼 필요는 없어요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-016",
+      "concept": "5대 릴레이",
+      "difficulty": 4,
+      "hintKo": "서로 다른 색을 받아줄 차량을 차례로 준비하세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-017",
+      "concept": "다중 색 혼합",
+      "difficulty": 4,
+      "hintKo": "작은 차량의 목표 색도 함께 살펴보세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-018",
+      "concept": "보조 차량 우선 개방",
+      "difficulty": 4,
+      "hintKo": "용량이 작은 D 차량을 먼저 비워 빨간 블록 수집처를 여세요.",
+      "focusCarId": "D"
+    },
+    {
+      "levelId": "level-019",
+      "concept": "고밀도 트래픽",
+      "difficulty": 5,
+      "hintKo": "수집 중인 블록을 기다려 트랙 여유를 되찾으세요.",
+      "focusCarId": "A"
+    },
+    {
+      "levelId": "level-020",
+      "concept": "그랜드 루프 마스터",
+      "difficulty": 5,
+      "hintKo": "차량을 비우는 순서와 남겨둘 목표 색을 골라보세요.",
+      "focusCarId": "A"
+    }
+  ]
+}

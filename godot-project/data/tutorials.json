@@ -1,0 +1,2102 @@
+[
+  {
+    "concept": "탭 사출 기초",
+    "difficulty": 1.0,
+    "focusCarId": "A",
+    "hintKo": "A 차량을 탭해 맨 앞 블록을 트랙으로 보내세요.",
+    "levelId": "level-001"
+  },
+  {
+    "concept": "목표 색 수집",
+    "difficulty": 1.0,
+    "focusCarId": "A",
+    "hintKo": "차량을 비우면 목표 색 블록을 수집할 수 있어요.",
+    "levelId": "level-002"
+  },
+  {
+    "concept": "차량 완성 조건",
+    "difficulty": 1.0,
+    "focusCarId": "A",
+    "hintKo": "목표 색 블록으로 빈칸을 채우면 차량이 완성돼요.",
+    "levelId": "level-003"
+  },
+  {
+    "concept": "트랙 여유 활용",
+    "difficulty": 1.0,
+    "focusCarId": "A",
+    "hintKo": "트랙의 빈칸을 보면서 사출 순서를 골라보세요.",
+    "levelId": "level-004"
+  },
+  {
+    "concept": "막힘과 Undo",
+    "difficulty": 2.0,
+    "focusCarId": "A",
+    "hintKo": "막히면 Undo로 되돌리고 다른 순서를 시도하세요.",
+    "levelId": "level-005"
+  },
+  {
+    "concept": "3색 순환 시작",
+    "difficulty": 2.0,
+    "focusCarId": "A",
+    "hintKo": "트랙 블록을 받을 차량의 색과 빈칸을 살펴보세요.",
+    "levelId": "level-006"
+  },
+  {
+    "concept": "혼합 배열 정리",
+    "difficulty": 2.0,
+    "focusCarId": "A",
+    "hintKo": "뒤에 있는 목표 색을 남기고 앞 블록을 빼보세요.",
+    "levelId": "level-007"
+  },
+  {
+    "concept": "좁은 트랙 관리",
+    "difficulty": 2.0,
+    "focusCarId": "A",
+    "hintKo": "노란 블록을 받을 차량도 미리 준비해 보세요.",
+    "levelId": "level-008"
+  },
+  {
+    "concept": "입구 통과 수집",
+    "difficulty": 2.0,
+    "focusCarId": "A",
+    "hintKo": "목표 색도 뒤에 다른 색이 있으면 사출할 수 있어요.",
+    "levelId": "level-009"
+  },
+  {
+    "concept": "동일 색 다중 차량",
+    "difficulty": 3.0,
+    "focusCarId": "A",
+    "hintKo": "목표 색이 같은 두 차량의 수집 공간을 살펴보세요.",
+    "levelId": "level-010"
+  },
+  {
+    "concept": "비대칭 수용량",
+    "difficulty": 3.0,
+    "focusCarId": "A",
+    "hintKo": "큰 차량을 비울 때 트랙의 남은 칸을 확인하세요.",
+    "levelId": "level-011"
+  },
+  {
+    "concept": "교차 공급 루프",
+    "difficulty": 3.0,
+    "focusCarId": "A",
+    "hintKo": "한 차량에 모인 같은 색은 그대로 두어도 좋아요.",
+    "levelId": "level-012"
+  },
+  {
+    "concept": "잔여 목표 색 보존",
+    "difficulty": 3.0,
+    "focusCarId": "A",
+    "hintKo": "뒤에 모인 같은 색은 남기고 앞의 다른 색만 빼내세요.",
+    "levelId": "level-013"
+  },
+  {
+    "concept": "완성 차량 제외",
+    "difficulty": 3.0,
+    "focusCarId": "A",
+    "hintKo": "완성된 차량은 그대로 두고 남은 차량을 정리하세요.",
+    "levelId": "level-014"
+  },
+  {
+    "concept": "5슬롯 대용량",
+    "difficulty": 4.0,
+    "focusCarId": "A",
+    "hintKo": "맨 뒤의 목표 색까지 모두 내보낼 필요는 없어요.",
+    "levelId": "level-015"
+  },
+  {
+    "concept": "5대 릴레이",
+    "difficulty": 4.0,
+    "focusCarId": "A",
+    "hintKo": "서로 다른 색을 받아줄 차량을 차례로 준비하세요.",
+    "levelId": "level-016"
+  },
+  {
+    "concept": "다중 색 혼합",
+    "difficulty": 4.0,
+    "focusCarId": "A",
+    "hintKo": "작은 차량의 목표 색도 함께 살펴보세요.",
+    "levelId": "level-017"
+  },
+  {
+    "concept": "보조 차량 우선 개방",
+    "difficulty": 4.0,
+    "focusCarId": "D",
+    "hintKo": "용량이 작은 D 차량을 먼저 비워 빨간 블록 수집처를 여세요.",
+    "levelId": "level-018"
+  },
+  {
+    "concept": "고밀도 트래픽",
+    "difficulty": 5.0,
+    "focusCarId": "A",
+    "hintKo": "수집 중인 블록을 기다려 트랙 여유를 되찾으세요.",
+    "levelId": "level-019"
+  },
+  {
+    "concept": "그랜드 루프 마스터",
+    "difficulty": 5.0,
+    "focusCarId": "A",
+    "hintKo": "차량을 비우는 순서와 남겨둘 목표 색을 골라보세요.",
+    "levelId": "level-020"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-021"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-022"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-023"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-024"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-025"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-026"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-027"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-028"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-029"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-030"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-031"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-032"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-033"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-034"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-035"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-036"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-037"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-038"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-039"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-040"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-041"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-042"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-043"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-044"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-045"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-046"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-047"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-048"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-049"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-050"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-051"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-052"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-053"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-054"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-055"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-056"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-057"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-058"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-059"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-060"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-061"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-062"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-063"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-064"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-065"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-066"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-067"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-068"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-069"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-070"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-071"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-072"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-073"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-074"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-075"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-076"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-077"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-078"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-079"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-080"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-081"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-082"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-083"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-084"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-085"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-086"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-087"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-088"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-089"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-090"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-091"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-092"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-093"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-094"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-095"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-096"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-097"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-098"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-099"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-100"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-101"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-102"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-103"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-104"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-105"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-106"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-107"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-108"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-109"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-110"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-111"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-112"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-113"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-114"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-115"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-116"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-117"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-118"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-119"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-120"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-121"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-122"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-123"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-124"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-125"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-126"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-127"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-128"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-129"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-130"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-131"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-132"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-133"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-134"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-135"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-136"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-137"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-138"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-139"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-140"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 2,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-141"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 2,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-142"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-143"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-144"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-145"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-146"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-147"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-148"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-149"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-150"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 2,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-151"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 2,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-152"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-153"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-154"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-155"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-156"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-157"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-158"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-159"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-160"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-161"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-162"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-163"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-164"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-165"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-166"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-167"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-168"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-169"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-170"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-171"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-172"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-173"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-174"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-175"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-176"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-177"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-178"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-179"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-180"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-181"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-182"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-183"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-184"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-185"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-186"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-187"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-188"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-189"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-190"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-191"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-192"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-193"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-194"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-195"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-196"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-197"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-198"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-199"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-200"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-201"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-202"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-203"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-204"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-205"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-206"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-207"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-208"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-209"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-210"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-211"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 3,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-212"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-213"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-214"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-215"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-216"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-217"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "F",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-218"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-219"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-220"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-221"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 3,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-222"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-223"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-224"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-225"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-226"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-227"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-228"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-229"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-230"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-231"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-232"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-233"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-234"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-235"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-236"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-237"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-238"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-239"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-240"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-241"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-242"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-243"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-244"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-245"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-246"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-247"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-248"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "F",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-249"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-250"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-251"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-252"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-253"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-254"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-255"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-256"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-257"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-258"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-259"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-260"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-261"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-262"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "E",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-263"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-264"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-265"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-266"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-267"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-268"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-269"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-270"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-271"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-272"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-273"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "F",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-274"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-275"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-276"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-277"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-278"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-279"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-280"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 4,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-281"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 4,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-282"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-283"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-284"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "B",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-285"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "F",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-286"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-287"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-288"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-289"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-290"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-291"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 4,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-292"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-293"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "F",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-294"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-295"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-296"
+  },
+  {
+    "concept": "수집 공간 만들기",
+    "difficulty": 5,
+    "focusCarId": "A",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-297"
+  },
+  {
+    "concept": "차량 사이 순서 조율",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-298"
+  },
+  {
+    "concept": "좁은 트랙 활용",
+    "difficulty": 5,
+    "focusCarId": "C",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-299"
+  },
+  {
+    "concept": "목표 색 보존",
+    "difficulty": 5,
+    "focusCarId": "D",
+    "hintKo": "목표 색은 남기고 다른 색이 앞에 있는 차량을 살펴보세요.",
+    "levelId": "level-300"
+  }
+]

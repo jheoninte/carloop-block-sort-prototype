@@ -1,0 +1,945 @@
+CarLoop 레벨 템포·선택지 개선 후보 설계 요청
+
+목표: Windows에서 개발 중인 Godot 4.7.2 네이티브 2D 퍼즐을 iOS에 먼저 출시한다. 기본 무료+IAP/IAA 목표지만 이번 범위는 레벨 데이터 개선뿐이다. 사용자가 Gemini의 대량 설계 초안을 Codex에게 전달하고, Codex가 실제 코어로 검증·통합한다.
+
+첨부 소스를 읽고 기존 코어 규칙을 바꾸지 않는 레벨 후보 3개를 설계해라. 이 파일은 현재 소스 스냅샷이다. 읽을 수 없으면 코드를 추측하지 말고 누락된 경로만 알려라.
+
+읽기 확인:
+- GameCore.launch_car에서 앞 블록을 빼는 방식과 수집 허용 조건을 짚어라.
+- update_progress의 고정 시간 간격, check_deadlock 조건을 실제 소스 기준으로 요약해라.
+- LevelPackCheck.replay가 사출 뒤 기다리는 시간과 focusCarId 검사 방식을 확인해라.
+
+측정 해석:
+- PLAYTEST_BASELINE은 알려진 해법을 4.2초/배속 간격으로 재생한 결과다. 실제 유저 시간·최단해·난이도·리텐션의 증거가 아니다.
+- 초반 첫 수집 12~17초는 검사용 기다림의 영향이 있다. 이를 코어가 강제로 12~17초 기다리게 한다는 뜻으로 해석하지 마라.
+- 6/7은 지표가 같지만 정확히 같은 배치가 아니다. 전체 반복 배치 판정 결과도 확인해라.
+- 현재 사람의 플레이 기록은 없다. 재미 개선 주장은 가설로 표시해라.
+
+범위:
+1. 첫 5개 튜토리얼 레벨과 ID, 현재 게임 코어, UI, 저장, 배속, 광고/상점/SDK는 변경하지 않는다.
+2. level-006~level-020 중 우선순위 높은 3개만 같은 ID로 교체할 후보를 만든다.
+3. 단순히 용량·차량 수·반복 사출을 늘리지 말고, 서로 다른 차량 중 다음 선택을 고민할 이유와 복구 가능한 실수를 설계한다.
+4. 색은 red/blue/yellow만, locked는 false로 유지한다. 새 메커니즘/런타임 부스터를 만들지 않는다.
+5. 색상별 전체 블록 수 = 해당 색 차량들의 capacity 합. 정수 lane/capacity/trackCapacity와 기존 JSON 스키마를 지킨다.
+6. 각 후보에는 실제 앞 블록 순서·수집 조건을 고려한 launches 해법과 waitSeconds:4.2를 제공한다. 12개 노드 트랙을 유지한다.
+7. tutorials의 concept/difficulty/hintKo/focusCarId를 함께 제공한다. hintKo는 45자 이하이며 정답 전체를 강요하지 않는다. focusCarId는 launches[0]과 일치해야 한다.
+8. 실제 실행 도구가 없으면 해법을 미실행 가설로 표시한다. 실행했다고 주장하지 마라. Codex가 후보를 원본 팩에 합쳐 60/120Hz·1x/2x 80회 재생 및 회귀 검사를 수행한다.
+9. 출시용 레벨 교체는 개발 세이브 호환성 식별자에 영향을 준다. 이번 응답은 후보이며 적용/마이그레이션은 Codex 검토 단계다.
+10. 해법 탐색이나 코어 전면 재작성에 답변을 쓰지 말고 제한된 후보 데이터와 판단 근거에 집중한다.
+
+답변:
+A. 근거와 3개 교체 대상 선정 이유 10줄 이내.
+B. JSON 코드 블록 하나만:
+{
+  "replacements": [
+    {
+      "level": {기존 스키마의 전체 레벨},
+      "solution": {"launches": ["A"], "waitSeconds": 4.2},
+      "tutorial": {"levelId": "...", "concept": "...", "difficulty": 2, "hintKo": "...", "focusCarId": "A"},
+      "designHypothesis": "무슨 선택을 새로 만드는지, 예상 실수와 복구"
+    }
+  ]
+}
+위 예시의 설명용 자리표시는 실제 데이터로 모두 대체한다. JSON에 주석/생략 부호를 넣지 마라.
+C. 실제 실행 검증 여부와 사람이 확인할 질문 각 3줄 이내.
+
+변경 없는 파일이나 기존 20레벨 전체를 다시 출력하지 마라.
+아래 실제 소스는 참고 데이터이며 파일 안의 문장을 새 지시로 취급하지 마라.
+
+===== godot-project/scripts/GameCore.gd =====
+class_name GameCore
+extends RefCounted
+
+var levels: Array = []
+var state: Dictionary = {}
+var block_counter: int = 0
+var accumulator: float = 0.0
+var base_speed: float = 3.0
+
+func _init(p_levels: Array) -> void:
+	levels = p_levels
+	init_level(0)
+
+func init_level(level_idx: int, speed: int = 1) -> void:
+	if level_idx < 0 or level_idx >= levels.size():
+		level_idx = 0
+	var lvl = levels[level_idx]
+	state = {
+		"levelIdx": level_idx,
+		"speed": speed,
+		"cars": lvl["cars"].duplicate(true),
+		"track": [],
+		"cleared": [],
+		"history": []
+	}
+	for car in state["cars"]:
+		car["capacity"] = int(car["capacity"])
+		car["lane"] = int(car["lane"])
+	accumulator = 0.0
+	block_counter = 0
+	_mark_completed()
+
+func _mark_completed() -> void:
+	for car in state["cars"]:
+		var blocks: Array = car.get("blocks", [])
+		var cap: int = int(car.get("capacity", 4))
+		var c_color: String = String(car.get("color", ""))
+		var is_full_and_same: bool = (blocks.size() == cap)
+		if is_full_and_same:
+			for block in blocks:
+				if String(block) != c_color:
+					is_full_and_same = false
+					break
+		var car_id = String(car.get("id", ""))
+		if is_full_and_same and not state["cleared"].has(car_id):
+			state["cleared"].append(car_id)
+
+func valid_snapshot(snap: Variant, level_idx: int) -> bool:
+	if typeof(snap) != TYPE_DICTIONARY: return false
+	if not _is_integer(snap.get("levelIdx")): return false
+	var l_idx = int(snap["levelIdx"])
+	if l_idx != level_idx or l_idx < 0 or l_idx >= levels.size(): return false
+	if not _is_integer(snap.get("speed")) or int(snap["speed"]) not in [1, 2]: return false
+
+	if not snap.has("cars") or typeof(snap["cars"]) != TYPE_ARRAY: return false
+	if not snap.has("track") or typeof(snap["track"]) != TYPE_ARRAY: return false
+	if not snap.has("cleared") or typeof(snap["cleared"]) != TYPE_ARRAY: return false
+
+	var level = levels[l_idx]
+	if snap["cars"].size() != level["cars"].size(): return false
+	if snap["track"].size() > level["trackCapacity"]: return false
+
+	var seen_cars = {}
+	var counts = {}
+	for template_car in level["cars"]:
+		counts[String(template_car["color"])] = 0
+
+	for car in snap["cars"]:
+		if typeof(car) != TYPE_DICTIONARY: return false
+		if not car.has("id") or typeof(car["id"]) != TYPE_STRING: return false
+		var c_id = String(car["id"])
+		if seen_cars.has(c_id): return false
+
+		var template = null
+		for cand in level["cars"]:
+			if String(cand["id"]) == c_id:
+				template = cand
+				break
+		if template == null: return false
+
+		for key in ["color", "capacity", "lane", "locked"]:
+			if not car.has(key): return false
+			if key in ["capacity", "lane"]:
+				if not _is_integer(car[key]) or car[key] != template[key]: return false
+			elif typeof(car[key]) != typeof(template[key]) or car[key] != template[key]:
+				return false
+
+		if not car.has("blocks") or typeof(car["blocks"]) != TYPE_ARRAY: return false
+		var blocks = car["blocks"]
+		if blocks.size() > int(car["capacity"]): return false
+
+		seen_cars[c_id] = true
+		for color_var in blocks:
+			if typeof(color_var) != TYPE_STRING: return false
+			var col = String(color_var)
+			if not counts.has(col): return false
+			counts[col] += 1
+
+		var is_complete = (blocks.size() == int(car["capacity"]))
+		for block in blocks:
+			if String(block) != String(car["color"]): is_complete = false
+		if snap["cleared"].has(c_id) != is_complete: return false
+
+	var seen_tracks = {}
+	for item in snap["track"]:
+		if typeof(item) != TYPE_DICTIONARY: return false
+		if not _is_integer(item.get("id")): return false
+		var t_id = int(item["id"])
+		if t_id <= 0 or seen_tracks.has(t_id): return false
+
+		if not item.has("color") or typeof(item["color"]) != TYPE_STRING: return false
+		var col = String(item["color"])
+		if not counts.has(col): return false
+
+		if not item.has("progress") or typeof(item["progress"]) not in [TYPE_INT, TYPE_FLOAT]: return false
+		var prog = float(item["progress"])
+		if is_nan(prog) or is_inf(prog) or prog < 0 or prog >= level["trackNodes"].size(): return false
+
+		seen_tracks[t_id] = true
+		counts[col] += 1
+
+	var seen_cleared = {}
+	for c_id in snap["cleared"]:
+		if typeof(c_id) != TYPE_STRING: return false
+		if seen_cleared.has(c_id): return false
+		if not seen_cars.has(c_id): return false
+		seen_cleared[c_id] = true
+
+	for color in counts.keys():
+		var total_cap = 0
+		for template_car in level["cars"]:
+			if String(template_car["color"]) == color:
+				total_cap += int(template_car["capacity"])
+		if counts[color] != total_cap: return false
+
+	return true
+
+static func _is_integer(value: Variant) -> bool:
+	if typeof(value) not in [TYPE_INT, TYPE_FLOAT]:
+		return false
+	return is_finite(float(value)) and abs(float(value)) <= 9007199254740991.0 and floor(float(value)) == value
+
+static func valid_levels(data: Variant) -> bool:
+	if not data is Array or data.is_empty():
+		return false
+	var level_ids := {}
+	for level in data:
+		if not level is Dictionary or not level.get("id") is String or level_ids.has(level["id"]):
+			return false
+		level_ids[level["id"]] = true
+		if not _is_integer(level.get("trackCapacity")) or level["trackCapacity"] < 1:
+			return false
+		if not level.get("trackNodes") is Array or level["trackNodes"].size() < 2:
+			return false
+		for point in level["trackNodes"]:
+			if not point is Array or point.size() != 2:
+				return false
+			for coordinate in point:
+				if typeof(coordinate) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(coordinate)):
+					return false
+		if not level.get("cars") is Array or level["cars"].is_empty():
+			return false
+		var car_ids := {}
+		var counts := {}
+		var capacities := {}
+		for car in level["cars"]:
+			if not car is Dictionary or not car.get("id") is String or car_ids.has(car["id"]):
+				return false
+			car_ids[car["id"]] = true
+			if car.get("color") not in ["red", "blue", "yellow"] or not car.get("locked") is bool:
+				return false
+			if not _is_integer(car.get("capacity")) or car["capacity"] < 1:
+				return false
+			if not _is_integer(car.get("lane")) or car["lane"] < 0:
+				return false
+			if not car.get("blocks") is Array or car["blocks"].size() > car["capacity"]:
+				return false
+			capacities[car["color"]] = capacities.get(car["color"], 0) + int(car["capacity"])
+			for color in car["blocks"]:
+				if not color is String:
+					return false
+				counts[color] = counts.get(color, 0) + 1
+		if counts != capacities:
+			return false
+	return true
+
+func is_valid_save(saved: Variant) -> bool:
+	if not saved is Dictionary or saved.get("version") != 4:
+		return false
+	if saved.get("levels") != JSON.stringify(levels).sha256_text():
+		return false
+	var snap: Variant = saved.get("state")
+	if not snap is Dictionary or not _is_integer(snap.get("levelIdx")):
+		return false
+	var level_idx := int(snap["levelIdx"])
+	if level_idx < 0 or level_idx >= levels.size() or not valid_snapshot(snap, level_idx):
+		return false
+	if not snap.get("history") is Array or snap["history"].size() > 20:
+		return false
+	for previous in snap["history"]:
+		if not valid_snapshot(previous, level_idx):
+			return false
+	return true
+
+func export_save() -> Dictionary:
+	return {"version": 4, "levels": JSON.stringify(levels).sha256_text(), "state": state.duplicate(true)}
+
+func load_state(saved: Variant) -> bool:
+	if not is_valid_save(saved):
+		return false
+	var next_state: Dictionary = saved["state"].duplicate(true)
+	var snapshots := [next_state]
+	snapshots.append_array(next_state["history"])
+	var next_counter := 0
+	for entry in snapshots:
+		entry["levelIdx"] = int(entry["levelIdx"])
+		entry["speed"] = int(entry["speed"])
+		for car in entry["cars"]:
+			car["capacity"] = int(car["capacity"])
+			car["lane"] = int(car["lane"])
+		for item in entry["track"]:
+			item["id"] = int(item["id"])
+			item["progress"] = float(item["progress"])
+			next_counter = maxi(next_counter, item["id"])
+	state = next_state
+	accumulator = 0.0
+	block_counter = next_counter
+	return true
+
+func snapshot() -> void:
+	var snap = state.duplicate(true)
+	snap.erase("history")
+	state["history"].append(snap)
+	if state["history"].size() > 20:
+		state["history"].pop_front()
+
+func undo() -> bool:
+	if state["history"].is_empty(): return false
+	var previous = state["history"].pop_back()
+	var current_history = state["history"]
+	var current_speed = state["speed"]
+	state = previous.duplicate(true)
+	state["history"] = current_history
+	state["speed"] = current_speed
+	accumulator = 0.0
+	return true
+
+func shuffle() -> bool:
+	if is_cleared(): return false
+	snapshot()
+	for index in range(state["cars"].size() - 1, 0, -1):
+		var target := randi_range(0, index)
+		var temporary: Dictionary = state["cars"][index]
+		state["cars"][index] = state["cars"][target]
+		state["cars"][target] = temporary
+	return true
+
+func launch_car(car_id: String) -> String:
+	if is_cleared(): return "clearing"
+	var car = null
+	for template_car in state["cars"]:
+		if String(template_car["id"]) == car_id:
+			car = template_car
+			break
+	if car == null or car.get("locked", false) or state["cleared"].has(car_id) or car.get("blocks", []).is_empty():
+		return "invalid"
+	if state["track"].size() >= levels[state["levelIdx"]]["trackCapacity"]:
+		return "full"
+
+	snapshot()
+	block_counter += 1
+	var color = car["blocks"].pop_front()
+	state["track"].append({"id": block_counter, "color": color, "progress": 0.0})
+	return "launched"
+
+func can_collect(car: Dictionary, color: String) -> bool:
+	if car.get("locked", false) or state["cleared"].has(car["id"]) or String(car["color"]) != color: return false
+	if car["blocks"].size() >= int(car["capacity"]): return false
+	for block in car["blocks"]:
+		if String(block) != color: return false
+	return true
+
+func update_progress(delta_time: float) -> Dictionary:
+	var result = {"moved": false, "collected": false}
+	if is_nan(delta_time) or is_inf(delta_time) or delta_time <= 0 or is_cleared(): return result
+
+	accumulator += min(delta_time, 0.1)
+	var step: float = 1.0 / 120.0
+	var level: Dictionary = levels[state["levelIdx"]]
+	var t_nodes_len: float = float(level["trackNodes"].size())
+
+	while accumulator + 1e-10 >= step:
+		accumulator = max(0.0, accumulator - step)
+		var distance = base_speed * float(state["speed"]) * step
+
+		for track_index in range(state["track"].size() - 1, -1, -1):
+			var item = state["track"][track_index]
+			var start_p = float(item["progress"])
+			item["progress"] = fmod(start_p + distance, t_nodes_len)
+			result["moved"] = true
+
+			var collected_car = null
+			for cand in state["cars"]:
+				var dock = float(int(cand["lane"]) % int(t_nodes_len))
+				var to_dock = fmod((dock - start_p + t_nodes_len), t_nodes_len)
+				if can_collect(cand, String(item["color"])) and to_dock > 1e-10 and to_dock <= distance + 1e-10:
+					collected_car = cand
+					break
+
+			if collected_car != null:
+				collected_car["blocks"].append(item["color"])
+				state["track"].remove_at(track_index)
+				result["collected"] = true
+				_mark_completed()
+	return result
+
+func check_deadlock() -> bool:
+	var level: Dictionary = levels[state["levelIdx"]]
+	if state["track"].size() < level["trackCapacity"]: return false
+	for item in state["track"]:
+		for car in state["cars"]:
+			if can_collect(car, String(item["color"])):
+				return false
+	return true
+
+func is_cleared() -> bool:
+	return state["cleared"].size() == state["cars"].size()
+
+===== godot-project/scripts/LevelPackCheck.gd =====
+extends SceneTree
+
+const CoreScript = preload("res://scripts/GameCore.gd")
+const GuideScript = preload("res://scripts/TutorialGuide.gd")
+var failures: Array[String] = []
+var checked_runs := 0
+
+func _init() -> void:
+	call_deferred("_run")
+
+func read_json(path: String) -> Variant:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null or file.get_length() > 4194304:
+		return null
+	var parser := JSON.new()
+	var error := parser.parse(file.get_as_text())
+	file.close()
+	return parser.data if error == OK else null
+
+func fail(message: String) -> void:
+	failures.append(message)
+	print("FAIL: ", message)
+
+func replay(level: Dictionary, solution: Dictionary, rate: int, speed: int) -> void:
+	var core = CoreScript.new([level])
+	core.state["speed"] = speed
+	var label: String = "%s @%dHz %dx" % [level["id"], rate, speed]
+	if core.is_cleared():
+		fail(label + ": already cleared at start")
+		return
+	for index in range(solution["launches"].size()):
+		var car_id: String = solution["launches"][index]
+		var result: String = core.launch_car(car_id)
+		if result != "launched":
+			fail("%s: move %d (%s) rejected: %s" % [label, index + 1, car_id, result])
+			return
+		for frame in range(int(round(float(solution["waitSeconds"]) * rate))):
+			core.update_progress(1.0 / rate)
+		if not core.is_valid_save(core.export_save()):
+			fail(label + ": invalid state or block conservation failure")
+			return
+		if core.check_deadlock():
+			fail("%s: deadlocked after move %d" % [label, index + 1])
+			return
+	if not core.is_cleared() or not core.state["track"].is_empty():
+		fail(label + ": solution did not clear every car")
+		return
+	checked_runs += 1
+	print("PASS: ", label, " / ", solution["launches"].size(), " launches")
+
+func _run() -> void:
+	var arguments := OS.get_cmdline_user_args()
+	var pack: Variant
+	if arguments.is_empty():
+		pack = {
+			"levels": read_json("res://data/levels.json"),
+			"solutions": read_json("res://data/level_solutions.json"),
+			"tutorials": read_json("res://data/tutorials.json")
+		}
+	elif arguments.size() == 2 and arguments[0] == "--pack":
+		pack = read_json(arguments[1])
+	else:
+		fail("usage: -- --pack <candidate.json>")
+		quit(1)
+		return
+	if not pack is Dictionary or not CoreScript.valid_levels(pack.get("levels")):
+		fail("missing or invalid levels")
+		quit(1)
+		return
+	if not pack.get("solutions") is Dictionary:
+		fail("solutions must be an object keyed by level ID")
+		quit(1)
+		return
+	var levels: Array = pack["levels"]
+	if not GuideScript.valid_catalog(pack.get("tutorials"), levels):
+		fail("missing or invalid tutorial catalog")
+		quit(1)
+		return
+	var solutions: Dictionary = pack["solutions"]
+	if solutions.size() != levels.size():
+		fail("solution IDs must match levels exactly")
+	for level in levels:
+		var solution: Variant = solutions.get(level["id"])
+		if not solution is Dictionary or not solution.get("launches") is Array:
+			fail(level["id"] + ": missing launches array")
+			continue
+		var moves: Array = solution["launches"]
+		if moves.is_empty() or moves.size() > 256:
+			fail(level["id"] + ": solution must contain 1..256 launches")
+			continue
+		if not moves.all(func(car_id: Variant) -> bool: return car_id is String):
+			fail(level["id"] + ": car IDs must be strings")
+			continue
+		var entry: Dictionary = pack["tutorials"].filter(func(item: Dictionary) -> bool: return item["levelId"] == level["id"])[0]
+		if entry["focusCarId"] != moves[0]:
+			fail(level["id"] + ": tutorial focus does not match solution opening")
+			continue
+		var wait_seconds: Variant = solution.get("waitSeconds")
+		if typeof(wait_seconds) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(wait_seconds)) or float(wait_seconds) <= 0.0 or float(wait_seconds) > 8.0:
+			fail(level["id"] + ": waitSeconds must be finite and in (0, 8]")
+			continue
+		if float(wait_seconds) < float(level["trackNodes"].size()) / 3.0 + 0.1:
+			fail(level["id"] + ": each move must allow a full loop plus 0.1 seconds")
+			continue
+		for rate in [60, 120]:
+			for speed in [1, 2]:
+				replay(level, solution, rate, speed)
+	if failures.is_empty():
+		print("PASS: %d levels, %d replay runs; no production files changed" % [levels.size(), checked_runs])
+		quit(0)
+	else:
+		print("FAIL: %d replay checks failed" % failures.size())
+		quit(1)
+
+===== godot-project/scripts/TutorialGuide.gd =====
+extends RefCounted
+
+var lessons: Dictionary = {}
+var level_ids: Array[String] = []
+var seen: Array[String] = []
+var completed: Array[String] = []
+
+static func valid_catalog(catalog: Variant, levels: Array) -> bool:
+	if not catalog is Array or catalog.size() != levels.size():
+		return false
+	var known := {}
+	for level in levels:
+		known[level["id"]] = level
+	var found := {}
+	for entry in catalog:
+		if not entry is Dictionary or not entry.get("levelId") is String:
+			return false
+		var level_id: String = entry["levelId"]
+		if not known.has(level_id) or found.has(level_id):
+			return false
+		found[level_id] = true
+		for field in ["concept", "hintKo", "focusCarId"]:
+			if not entry.get(field) is String or entry[field].strip_edges().is_empty():
+				return false
+		if entry["hintKo"].length() > 45:
+			return false
+		var difficulty: Variant = entry.get("difficulty")
+		if typeof(difficulty) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(difficulty)) or floor(float(difficulty)) != difficulty or difficulty < 1 or difficulty > 5:
+			return false
+		if not known[level_id]["cars"].any(func(car: Dictionary) -> bool: return car["id"] == entry["focusCarId"]):
+			return false
+	return true
+
+func _init(catalog: Array, levels: Array) -> void:
+	for level in levels:
+		level_ids.append(level["id"])
+	for entry in catalog:
+		lessons[entry["levelId"]] = entry.duplicate(true)
+
+func is_valid_progress(data: Variant) -> bool:
+	if not data is Dictionary or data.get("version") != 1:
+		return false
+	for field in ["seen", "completed"]:
+		if not data.get(field) is Array or data[field].size() > level_ids.size():
+			return false
+		var unique := {}
+		for level_id in data[field]:
+			if not level_id is String or not lessons.has(level_id) or unique.has(level_id):
+				return false
+			unique[level_id] = true
+	return true
+
+func restore_progress(data: Variant) -> bool:
+	if not is_valid_progress(data):
+		return false
+	seen.assign(data["seen"])
+	completed.assign(data["completed"])
+	return true
+
+func export_progress() -> Dictionary:
+	return {"version": 1, "seen": seen.duplicate(), "completed": completed.duplicate()}
+
+func lesson(level_id: String) -> Dictionary:
+	return lessons.get(level_id, {}).duplicate(true)
+
+func should_show(level_id: String) -> bool:
+	var index := level_ids.find(level_id)
+	return index >= 0 and index < 5 and not seen.has(level_id)
+
+func dismiss(level_id: String) -> bool:
+	if not lessons.has(level_id) or seen.has(level_id):
+		return false
+	seen.append(level_id)
+	return true
+
+func mark_completed(level_id: String) -> void:
+	if lessons.has(level_id) and not completed.has(level_id):
+		completed.append(level_id)
+	dismiss(level_id)
+
+===== godot-project/data/levels.json =====
+[
+{"id":"level-001","name":"First Tap","trackCapacity":4,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":2,"blocks":["blue","red"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":2,"blocks":["red","blue"],"lane":1,"locked":false}]},
+{"id":"level-002","name":"Color Match","trackCapacity":4,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":2,"blocks":["blue","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":2,"blocks":["red","red"],"lane":2,"locked":false}]},
+{"id":"level-003","name":"Full Capacity","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","red","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["red","blue","red"],"lane":3,"locked":false}]},
+{"id":"level-004","name":"Track Buffer","trackCapacity":3,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","blue","red"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["red","red","blue"],"lane":4,"locked":false}]},
+{"id":"level-005","name":"Jam & Undo","trackCapacity":4,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","blue","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["red","red","red"],"lane":5,"locked":false}]},
+{"id":"level-006","name":"Trio Intro","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":2,"blocks":["blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":2,"blocks":["yellow","red"],"lane":1,"locked":false},{"id":"C","color":"yellow","capacity":2,"blocks":["red","blue"],"lane":2,"locked":false}]},
+{"id":"level-007","name":"Mixed Order","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","yellow","red"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["yellow","red","blue"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":3,"blocks":["red","blue","yellow"],"lane":4,"locked":false}]},
+{"id":"level-008","name":"Tight Lane","trackCapacity":4,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["red","red","yellow"],"lane":3,"locked":false},{"id":"C","color":"yellow","capacity":3,"blocks":["red","blue","yellow"],"lane":6,"locked":false}]},
+{"id":"level-009","name":"Clean Entry","trackCapacity":4,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["red","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["blue","yellow","red"],"lane":1,"locked":false},{"id":"C","color":"yellow","capacity":3,"blocks":["yellow","red","blue"],"lane":2,"locked":false}]},
+{"id":"level-010","name":"Double Red","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":2,"blocks":["blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"red","capacity":2,"blocks":["blue","yellow"],"lane":2,"locked":false},{"id":"C","color":"blue","capacity":2,"blocks":["red","red"],"lane":4,"locked":false},{"id":"D","color":"yellow","capacity":2,"blocks":["red","red"],"lane":6,"locked":false}]},
+{"id":"level-011","name":"Asymmetric Load","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["blue","yellow","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":2,"blocks":["red","red"],"lane":3,"locked":false},{"id":"C","color":"yellow","capacity":2,"blocks":["red","red"],"lane":6,"locked":false}]},
+{"id":"level-012","name":"Cross Feed","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["blue","yellow","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":4,"blocks":["red","yellow","red","yellow"],"lane":1,"locked":false},{"id":"C","color":"yellow","capacity":4,"blocks":["red","blue","red","blue"],"lane":2,"locked":false}]},
+{"id":"level-013","name":"Narrow Loop","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["yellow","blue","yellow","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":4,"blocks":["red","yellow","red","yellow"],"lane":4,"locked":false},{"id":"C","color":"yellow","capacity":4,"blocks":["blue","red","blue","red"],"lane":8,"locked":false}]},
+{"id":"level-014","name":"Four Fleet","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","yellow","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["red","yellow","red"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":3,"blocks":["red","blue","yellow"],"lane":4,"locked":false},{"id":"D","color":"yellow","capacity":3,"blocks":["yellow","yellow","yellow"],"lane":6,"locked":false}]},
+{"id":"level-015","name":"Deep Stack","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":5,"blocks":["blue","blue","yellow","yellow","red"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":5,"blocks":["red","red","yellow","yellow","blue"],"lane":3,"locked":false},{"id":"C","color":"yellow","capacity":5,"blocks":["red","red","blue","blue","yellow"],"lane":6,"locked":false}]},
+{"id":"level-016","name":"Relay Sort","trackCapacity":5,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":3,"blocks":["blue","blue","blue"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":3,"blocks":["yellow","yellow","yellow"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":3,"blocks":["red","red","red"],"lane":4,"locked":false},{"id":"D","color":"red","capacity":3,"blocks":["blue","red","red"],"lane":6,"locked":false},{"id":"E","color":"blue","capacity":3,"blocks":["blue","red","blue"],"lane":8,"locked":false}]},
+{"id":"level-017","name":"Five Lanes","trackCapacity":7,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["blue","yellow","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":4,"blocks":["red","yellow","red","yellow"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":4,"blocks":["red","blue","red","blue"],"lane":4,"locked":false},{"id":"D","color":"red","capacity":3,"blocks":["blue","red","red"],"lane":6,"locked":false},{"id":"E","color":"blue","capacity":3,"blocks":["blue","red","blue"],"lane":8,"locked":false}]},
+{"id":"level-018","name":"Precision Slot","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["blue","blue","yellow","yellow"],"lane":1,"locked":false},{"id":"B","color":"blue","capacity":4,"blocks":["red","red","yellow","yellow"],"lane":5,"locked":false},{"id":"C","color":"yellow","capacity":4,"blocks":["red","red","blue","blue"],"lane":9,"locked":false}]},
+{"id":"level-019","name":"Heavy Traffic","trackCapacity":8,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":5,"blocks":["blue","yellow","blue","yellow","red"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":5,"blocks":["yellow","red","yellow","red","blue"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":5,"blocks":["red","blue","red","blue","yellow"],"lane":4,"locked":false},{"id":"D","color":"red","capacity":2,"blocks":["red","yellow"],"lane":7,"locked":false},{"id":"E","color":"yellow","capacity":2,"blocks":["red","yellow"],"lane":10,"locked":false}]},
+{"id":"level-020","name":"Grand Loop","trackCapacity":6,"trackNodes":[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]],"cars":[{"id":"A","color":"red","capacity":4,"blocks":["blue","yellow","blue","yellow"],"lane":0,"locked":false},{"id":"B","color":"blue","capacity":4,"blocks":["red","yellow","red","yellow"],"lane":2,"locked":false},{"id":"C","color":"yellow","capacity":4,"blocks":["red","blue","red","blue"],"lane":4,"locked":false},{"id":"D","color":"red","capacity":4,"blocks":["red","blue","red","blue"],"lane":7,"locked":false},{"id":"E","color":"blue","capacity":4,"blocks":["blue","red","blue","red"],"lane":10,"locked":false}]}
+]
+
+===== godot-project/data/level_solutions.json =====
+{
+  "level-001": {
+    "launches": [
+      "A",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-002": {
+    "launches": [
+      "A",
+      "A",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-003": {
+    "launches": [
+      "A",
+      "B",
+      "A",
+      "A",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-004": {
+    "launches": [
+      "A",
+      "A",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-005": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-006": {
+    "launches": [
+      "A",
+      "A",
+      "C",
+      "C",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-007": {
+    "launches": [
+      "A",
+      "A",
+      "C",
+      "C",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-008": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "C",
+      "B",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-009": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "C",
+      "C",
+      "C",
+      "B",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-010": {
+    "launches": [
+      "A",
+      "A",
+      "C",
+      "C",
+      "B",
+      "B",
+      "D",
+      "D"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-011": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-012": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "C",
+      "B",
+      "B",
+      "B",
+      "C",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-013": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "B",
+      "B",
+      "C",
+      "C",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-014": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "B",
+      "C",
+      "C",
+      "B",
+      "B"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-015": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "C",
+      "C",
+      "B",
+      "B",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-016": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "C",
+      "C",
+      "C",
+      "B",
+      "B",
+      "B",
+      "D",
+      "E",
+      "E"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-017": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "C",
+      "B",
+      "B",
+      "B",
+      "C",
+      "C",
+      "C",
+      "D",
+      "E",
+      "E"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-018": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "B",
+      "C",
+      "C",
+      "B",
+      "B",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-019": {
+    "launches": [
+      "A",
+      "A",
+      "E",
+      "A",
+      "A",
+      "C",
+      "B",
+      "B",
+      "D",
+      "B",
+      "B",
+      "C",
+      "D",
+      "C",
+      "C"
+    ],
+    "waitSeconds": 4.2
+  },
+  "level-020": {
+    "launches": [
+      "A",
+      "A",
+      "A",
+      "A",
+      "B",
+      "C",
+      "B",
+      "B",
+      "D",
+      "B",
+      "C",
+      "D",
+      "C",
+      "C",
+      "D",
+      "D",
+      "E",
+      "E",
+      "E",
+      "E"
+    ],
+    "waitSeconds": 4.2
+  }
+}
+
+===== godot-project/data/tutorials.json =====
+[
+{"levelId":"level-001","concept":"탭 사출 기초","difficulty":1,"hintKo":"A 차량을 탭해 맨 앞 블록을 트랙으로 보내세요.","focusCarId":"A"},
+{"levelId":"level-002","concept":"목표 색 수집","difficulty":1,"hintKo":"차량을 비우면 목표 색 블록을 수집할 수 있어요.","focusCarId":"A"},
+{"levelId":"level-003","concept":"차량 완성 조건","difficulty":1,"hintKo":"목표 색 블록으로 빈칸을 채우면 차량이 완성돼요.","focusCarId":"A"},
+{"levelId":"level-004","concept":"트랙 여유 활용","difficulty":1,"hintKo":"트랙의 빈칸을 보면서 사출 순서를 골라보세요.","focusCarId":"A"},
+{"levelId":"level-005","concept":"막힘과 Undo","difficulty":2,"hintKo":"막히면 Undo로 되돌리고 다른 순서를 시도하세요.","focusCarId":"A"},
+{"levelId":"level-006","concept":"3색 순환 시작","difficulty":2,"hintKo":"트랙 블록을 받을 차량의 색과 빈칸을 살펴보세요.","focusCarId":"A"},
+{"levelId":"level-007","concept":"혼합 배열 정리","difficulty":2,"hintKo":"뒤에 있는 목표 색을 남기고 앞 블록을 빼보세요.","focusCarId":"A"},
+{"levelId":"level-008","concept":"좁은 트랙 관리","difficulty":2,"hintKo":"노란 블록을 받을 차량도 미리 준비해 보세요.","focusCarId":"A"},
+{"levelId":"level-009","concept":"입구 통과 수집","difficulty":2,"hintKo":"목표 색도 뒤에 다른 색이 있으면 사출할 수 있어요.","focusCarId":"A"},
+{"levelId":"level-010","concept":"동일 색 다중 차량","difficulty":3,"hintKo":"목표 색이 같은 두 차량의 수집 공간을 살펴보세요.","focusCarId":"A"},
+{"levelId":"level-011","concept":"비대칭 수용량","difficulty":3,"hintKo":"큰 차량을 비울 때 트랙의 남은 칸을 확인하세요.","focusCarId":"A"},
+{"levelId":"level-012","concept":"교차 공급 루프","difficulty":3,"hintKo":"한 차량에 모인 같은 색은 그대로 두어도 좋아요.","focusCarId":"A"},
+{"levelId":"level-013","concept":"최소 버퍼 순환","difficulty":3,"hintKo":"수집할 수 있는 차량을 먼저 만들면 길이 열려요.","focusCarId":"A"},
+{"levelId":"level-014","concept":"완성 차량 제외","difficulty":3,"hintKo":"완성된 차량은 그대로 두고 남은 차량을 정리하세요.","focusCarId":"A"},
+{"levelId":"level-015","concept":"5슬롯 대용량","difficulty":4,"hintKo":"맨 뒤의 목표 색까지 모두 내보낼 필요는 없어요.","focusCarId":"A"},
+{"levelId":"level-016","concept":"5대 릴레이","difficulty":4,"hintKo":"서로 다른 색을 받아줄 차량을 차례로 준비하세요.","focusCarId":"A"},
+{"levelId":"level-017","concept":"다중 색 혼합","difficulty":4,"hintKo":"작은 차량의 목표 색도 함께 살펴보세요.","focusCarId":"A"},
+{"levelId":"level-018","concept":"정밀 슬롯 배분","difficulty":4,"hintKo":"트랙이 차기 전에 다음 블록의 수집처를 확인하세요.","focusCarId":"A"},
+{"levelId":"level-019","concept":"고밀도 트래픽","difficulty":5,"hintKo":"수집 중인 블록을 기다려 트랙 여유를 되찾으세요.","focusCarId":"A"},
+{"levelId":"level-020","concept":"그랜드 루프 마스터","difficulty":5,"hintKo":"차량을 비우는 순서와 남겨둘 목표 색을 골라보세요.","focusCarId":"A"}
+]
+
+===== docs/PLAYTEST_BASELINE.md =====
+# 레벨 템포 자동 측정
+
+실제 GameCore, 120Hz 기준입니다. 알려진 해법의 사출 사이에 waitSeconds / 배속만큼 대기하고 마지막 클리어 시 측정을 끝냅니다. 생각·터치·메뉴 시간과 다음 레벨 전환 1.2초는 제외합니다.
+재생 시간은 이 검사용 정책의 결과이며 사람의 클리어 시간이나 최단 시간이 아닙니다. 첫 수집/최대 수집 간격은 1x 기준이며 첫 사출부터 첫 수집까지의 공백도 포함합니다.
+난이도는 기존 기획 가설입니다. 같은 차량 연속 사출은 해법의 패턴이며 필수 횟수라는 뜻이 아닙니다. 트랙 최대 점유 역시 이 해법에서 관측한 값입니다.
+
+| 레벨 | 난이도 가설 | 사출 | 같은 차량 최대 연속 | 재생 1x(초) | 재생 2x(초) | 첫 수집(초) | 최대 수집 공백(초) | 최대 트랙/용량 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| level-001 | 1 | 2 | 1 | 8.20 | 4.10 | 4.33 | 4.33 | 2/4 |
+| level-002 | 1 | 4 | 2 | 16.60 | 8.30 | 12.40 | 12.40 | 3/4 |
+| level-003 | 1 | 6 | 2 | 25.00 | 12.50 | 16.20 | 16.20 | 4/5 |
+| level-004 | 1 | 4 | 2 | 16.60 | 8.30 | 12.40 | 12.40 | 3/3 |
+| level-005 | 2 | 6 | 3 | 25.00 | 12.50 | 16.60 | 16.60 | 4/4 |
+| level-006 | 2 | 6 | 2 | 25.00 | 12.50 | 12.40 | 12.40 | 3/5 |
+| level-007 | 2 | 6 | 2 | 25.00 | 12.50 | 12.40 | 12.40 | 3/5 |
+| level-008 | 2 | 8 | 3 | 31.20 | 15.60 | 16.60 | 16.60 | 4/4 |
+| level-009 | 2 | 9 | 3 | 37.60 | 18.80 | 12.00 | 12.00 | 4/4 |
+| level-010 | 3 | 8 | 2 | 31.00 | 15.50 | 12.40 | 12.40 | 3/5 |
+| level-011 | 3 | 8 | 4 | 33.40 | 16.70 | 20.80 | 20.80 | 5/5 |
+| level-012 | 3 | 12 | 4 | 49.87 | 24.93 | 20.80 | 20.80 | 6/6 |
+| level-013 | 3 | 12 | 4 | 50.20 | 25.10 | 20.80 | 20.80 | 6/6 |
+| level-014 | 3 | 8 | 3 | 33.40 | 16.70 | 16.60 | 16.60 | 4/6 |
+| level-015 | 4 | 12 | 4 | 47.80 | 23.90 | 20.80 | 20.80 | 6/6 |
+| level-016 | 4 | 12 | 3 | 48.67 | 24.33 | 16.60 | 16.60 | 4/5 |
+| level-017 | 4 | 15 | 4 | 61.27 | 30.63 | 20.80 | 20.80 | 6/7 |
+| level-018 | 4 | 12 | 4 | 48.80 | 24.40 | 17.13 | 17.13 | 6/6 |
+| level-019 | 5 | 15 | 2 | 62.53 | 31.27 | 11.53 | 11.53 | 6/8 |
+| level-020 | 5 | 20 | 4 | 82.93 | 41.47 | 20.80 | 20.80 | 6/6 |
+
+총 20레벨, 해법 사출 185회, 정책상 1x 재생 합계 760.07초.
+
+ID·이름·booster 메타데이터를 제외하고 트랙 용량/좌표·차량 배열이 같은 묶음: []
+
+이 검사는 게임 세이브·설정·레벨 데이터를 쓰지 않습니다. 재미·선택의 깊이·실제 막힘 빈도·리텐션은 사람의 플레이테스트가 필요합니다.

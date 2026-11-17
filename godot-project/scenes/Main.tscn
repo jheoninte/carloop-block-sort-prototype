@@ -1,0 +1,272 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+
+[ext_resource type="Script" path="res://scripts/Board3D.gd" id="2_track"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+theme_override_font_sizes/font_size = 18
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.956863, 0.968627, 0.984314, 1)
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Scroll" type="ScrollContainer" parent="SafeMargin"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="SafeMargin/Scroll"]
+size_flags_horizontal = 3
+layout_mode = 2
+
+[node name="Header" type="VBoxContainer" parent="SafeMargin/Scroll/VBox"]
+layout_mode = 2
+
+[node name="LevelLbl" type="Label" parent="SafeMargin/Scroll/VBox/Header"]
+layout_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.141176, 0.196078, 0.290196, 1)
+text = "Level 1"
+
+[node name="Controls" type="HBoxContainer" parent="SafeMargin/Scroll/VBox/Header"]
+layout_mode = 2
+
+[node name="SpeedBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 52)
+text = "1x"
+
+[node name="UndoBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 52)
+text = "Undo"
+
+[node name="ShuffleBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 52)
+text = "Shuffle"
+
+[node name="ResetBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 52)
+text = "다시하기"
+
+[node name="MenuRow" type="HBoxContainer" parent="SafeMargin/Scroll/VBox/Header"]
+layout_mode = 2
+
+[node name="PauseBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/MenuRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 44)
+text = "일시정지"
+
+[node name="SettingsBtn" type="Button" parent="SafeMargin/Scroll/VBox/Header/MenuRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 44)
+text = "설정"
+
+[node name="Board" type="VBoxContainer" parent="SafeMargin/Scroll/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TutorialBox" type="VBoxContainer" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+
+[node name="HintButton" type="Button" parent="SafeMargin/Scroll/VBox/Board/TutorialBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "힌트 보기"
+
+[node name="HintPanel" type="PanelContainer" parent="SafeMargin/Scroll/VBox/Board/TutorialBox"]
+layout_mode = 2
+visible = false
+
+[node name="Content" type="VBoxContainer" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel"]
+layout_mode = 2
+
+[node name="HintLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 3
+
+[node name="DismissButton" type="Button" parent="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "알겠어요"
+
+[node name="TrackArea" type="Control" parent="SafeMargin/Scroll/VBox/Board"]
+custom_minimum_size = Vector2(0, 440)
+layout_mode = 2
+size_flags_vertical = 3
+
+script = ExtResource("2_track")
+
+[node name="StatusLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.419608, 0.478431, 0.564706, 1)
+autowrap_mode = 3
+text = "진행 중"
+
+[node name="SaveLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.32, 0.42, 1)
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = "자동 저장"
+
+[node name="CapacityLbl" type="Label" parent="SafeMargin/Scroll/VBox/Board"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14, 0.20, 0.29, 1)
+text = "Track 0 / 0"
+
+[node name="Cars" type="Control" parent="SafeMargin/Scroll/VBox/Board/TrackArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="PauseOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.12, 0.18, 0.72)
+
+[node name="Center" type="CenterContainer" parent="PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="PauseOverlay/Center"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="PauseOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="PauseOverlay/Center/Panel/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "일시정지"
+
+[node name="ResumeBtn" type="Button" parent="PauseOverlay/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "계속하기"
+
+[node name="SettingsBtn" type="Button" parent="PauseOverlay/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "설정"
+
+[node name="SettingsOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.12, 0.18, 0.72)
+
+[node name="Center" type="CenterContainer" parent="SettingsOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="SettingsOverlay/Center"]
+custom_minimum_size = Vector2(340, 320)
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SettingsOverlay/Center/Panel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="SettingsOverlay/Center/Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "설정"
+
+[node name="SfxCheck" type="CheckButton" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+button_pressed = true
+text = "효과음"
+
+[node name="HapticsCheck" type="CheckButton" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+button_pressed = true
+text = "진동"
+
+[node name="MotionCheck" type="CheckButton" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "연출 줄이기"
+
+[node name="SettingsStatusLbl" type="Label" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.85, 0.25, 0.25, 1)
+
+[node name="CloseBtn" type="Button" parent="SettingsOverlay/Center/Panel/Scroll/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "닫기"
+
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/SpeedBtn" to="." method="_on_speed_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/UndoBtn" to="." method="_on_undo_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/ShuffleBtn" to="." method="_on_shuffle_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/Controls/ResetBtn" to="." method="_on_reset_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/MenuRow/PauseBtn" to="." method="_on_pause_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Header/MenuRow/SettingsBtn" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Board/TutorialBox/HintButton" to="." method="_on_hint_pressed"]
+[connection signal="pressed" from="SafeMargin/Scroll/VBox/Board/TutorialBox/HintPanel/Content/DismissButton" to="." method="_on_tutorial_dismissed"]
+[connection signal="pressed" from="PauseOverlay/Center/Panel/VBox/ResumeBtn" to="." method="_on_pause_pressed"]
+[connection signal="toggled" from="SettingsOverlay/Center/Panel/Scroll/VBox/SfxCheck" to="." method="_on_sfx_toggled"]
+[connection signal="toggled" from="SettingsOverlay/Center/Panel/Scroll/VBox/HapticsCheck" to="." method="_on_haptics_toggled"]
+[connection signal="toggled" from="SettingsOverlay/Center/Panel/Scroll/VBox/MotionCheck" to="." method="_on_motion_toggled"]
+[connection signal="pressed" from="SettingsOverlay/Center/Panel/Scroll/VBox/CloseBtn" to="." method="_on_settings_close_pressed"]
+[connection signal="pressed" from="PauseOverlay/Center/Panel/VBox/SettingsBtn" to="." method="_on_settings_pressed"]

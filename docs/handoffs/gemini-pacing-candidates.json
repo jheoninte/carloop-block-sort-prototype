@@ -1,0 +1,365 @@
+{
+  "replacements": [
+    {
+      "level": {
+        "id": "level-007",
+        "name": "Mixed Order",
+        "trackCapacity": 4,
+        "trackNodes": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "cars": [
+          {
+            "id": "A",
+            "color": "red",
+            "capacity": 3,
+            "blocks": [
+              "blue",
+              "red",
+              "yellow"
+            ],
+            "lane": 0,
+            "locked": false
+          },
+          {
+            "id": "B",
+            "color": "blue",
+            "capacity": 3,
+            "blocks": [
+              "yellow",
+              "blue",
+              "red"
+            ],
+            "lane": 3,
+            "locked": false
+          },
+          {
+            "id": "C",
+            "color": "yellow",
+            "capacity": 3,
+            "blocks": [
+              "red",
+              "yellow",
+              "blue"
+            ],
+            "lane": 6,
+            "locked": false
+          }
+        ]
+      },
+      "solution": {
+        "launches": [
+          "A",
+          "B",
+          "A",
+          "C",
+          "B",
+          "C"
+        ],
+        "waitSeconds": 4.2
+      },
+      "tutorial": {
+        "levelId": "level-007",
+        "concept": "교차 방출과 순서 조율",
+        "difficulty": 2,
+        "hintKo": "가운데 목표 색이 드러나도록 한 칸씩 비워보세요.",
+        "focusCarId": "A"
+      }
+    },
+    {
+      "level": {
+        "id": "level-013",
+        "name": "Narrow Loop",
+        "trackCapacity": 4,
+        "trackNodes": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "cars": [
+          {
+            "id": "A",
+            "color": "red",
+            "capacity": 4,
+            "blocks": [
+              "blue",
+              "yellow",
+              "red",
+              "red"
+            ],
+            "lane": 0,
+            "locked": false
+          },
+          {
+            "id": "B",
+            "color": "blue",
+            "capacity": 4,
+            "blocks": [
+              "yellow",
+              "red",
+              "blue",
+              "blue"
+            ],
+            "lane": 4,
+            "locked": false
+          },
+          {
+            "id": "C",
+            "color": "yellow",
+            "capacity": 4,
+            "blocks": [
+              "red",
+              "blue",
+              "yellow",
+              "yellow"
+            ],
+            "lane": 8,
+            "locked": false
+          }
+        ]
+      },
+      "solution": {
+        "launches": [
+          "A",
+          "A",
+          "B",
+          "B",
+          "C",
+          "C"
+        ],
+        "waitSeconds": 4.2
+      },
+      "tutorial": {
+        "levelId": "level-013",
+        "concept": "잔여 목표 색 보존",
+        "difficulty": 3,
+        "hintKo": "뒤에 모인 같은 색은 남기고 앞의 다른 색만 빼내세요.",
+        "focusCarId": "A"
+      }
+    },
+    {
+      "level": {
+        "id": "level-018",
+        "name": "Precision Slot",
+        "trackCapacity": 5,
+        "trackNodes": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "cars": [
+          {
+            "id": "A",
+            "color": "red",
+            "capacity": 4,
+            "blocks": [
+              "blue",
+              "yellow",
+              "blue",
+              "red"
+            ],
+            "lane": 1,
+            "locked": false
+          },
+          {
+            "id": "B",
+            "color": "blue",
+            "capacity": 4,
+            "blocks": [
+              "yellow",
+              "red",
+              "yellow",
+              "blue"
+            ],
+            "lane": 4,
+            "locked": false
+          },
+          {
+            "id": "C",
+            "color": "yellow",
+            "capacity": 4,
+            "blocks": [
+              "red",
+              "blue",
+              "red",
+              "yellow"
+            ],
+            "lane": 7,
+            "locked": false
+          },
+          {
+            "id": "D",
+            "color": "red",
+            "capacity": 2,
+            "blocks": [
+              "blue",
+              "yellow"
+            ],
+            "lane": 10,
+            "locked": false
+          }
+        ]
+      },
+      "solution": {
+        "launches": [
+          "D",
+          "D",
+          "A",
+          "A",
+          "A",
+          "B",
+          "B",
+          "B",
+          "C",
+          "C",
+          "C"
+        ],
+        "waitSeconds": 4.2
+      },
+      "tutorial": {
+        "levelId": "level-018",
+        "concept": "보조 차량 우선 개방",
+        "difficulty": 4,
+        "hintKo": "용량이 작은 D 차량을 먼저 비워 빨간 블록 수집처를 여세요.",
+        "focusCarId": "D"
+      }
+    }
+  ]
+}

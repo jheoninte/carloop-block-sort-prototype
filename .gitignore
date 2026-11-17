@@ -4,5 +4,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.import
+!godot-project/audio/*.wav.import
 .import/
 .export/
+.godot/
+.tools/

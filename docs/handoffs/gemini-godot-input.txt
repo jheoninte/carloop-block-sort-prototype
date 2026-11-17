@@ -1,0 +1,1092 @@
+CarLoop / Godot native implementation handoff / 2026-11-17
+
+아래는 실제 저장소 파일의 텍스트 스냅샷이다. 웹의 GameCore를 기준으로 Windows에서 바로 실행 가능한 Godot 4 2D 버전을 구현해줘.
+목표는 iOS 우선 출시, 이후 Android이며, 무료 다운로드 + IAP/IAA, 자체 서버 없는 구조다.
+이번에는 기본 플레이만 이식한다. 실제 광고/결제/게임센터 SDK와 HubGame, Three.js, 무기/미션 기능은 추가하지 않는다.
+
+작업 전 확인:
+- 웹 GameCore의 updateProgress, validSnapshot, checkDeadlock을 읽었는지 확인해라.
+- project.godot의 main_scene 경로가 가리키는 Main 씬은 현재 없다. 실행 가능한 씬을 제공해라.
+- 파일을 읽을 수 없으면 추정하지 말고 필요한 원문을 요청해라.
+
+구현 조건:
+1. 순수 GDScript 코어와 Node 기반 UI/저장 컨트롤러를 분리한다. 코어는 DOM/Node/파일/SDK를 참조하지 않는다.
+2. res://data/levels.json을 그대로 사용하고 기존 웹의 규칙과 두 레벨을 보존한다.
+3. lane은 수집 노드다. 잠긴 차량은 수집하지 않는다. 블록은 수집 가능한 차량의 입구를 통과할 때만 수집된다.
+4. 사출/순환 이동/자동 수집/완성/전체 클리어/막힘/1x·2x/Undo20개/Shuffle표시순서/Reset을 구현한다.
+5. 트랙이 가득 차고 수집이 불가능하면 차량 내부 블록이 남아 있어도 막힘이다.
+6. 120Hz 고정 시뮬레이션, delta 상한0.1초, 포커스 복귀 시 누적 시간 초기화. 색상별 블록은 생성/유실되지 않는다.
+7. Main.tscn/Main.gd를 제공한다. 외부 자산 없이 세로 화면과 안전 영역, 터치/마우스를 지원한다. UI 전체를 매 프레임 다시 만들지 않는다.
+8. user:// 로컬 저장: 버전/레벨/상태 검증, 정상 백업/안전한 파일 교체, 손상 복구, 중단/포커스 상실 시 저장. 매 프레임 저장하지 않는다.
+9. 클리어 전환은 컨트롤러가 한 번 예약하고 Undo/Reset/재시작 때 취소한다. 코어는 자체 레벨 전환을 하지 않는다.
+10. autoload/class_name 충돌, 잘못된 프로젝트 설정과 기존 스캐폴드의 중복 규칙을 정리한다.
+11. 헤드리스 검증 스크립트: 두 레벨 클리어, 60/120Hz 동일 속도, 2배속, 블록 보존, Undo, 막힘과 잘못된 저장을 검사한다.
+12. 두 레벨의 기준 해법은 A4회->B4회->C4회이며 각 사출 후 수집을 충분히 기다린다.
+
+출력:
+설계 결정10줄 이내, 수정/추가 파일별 전체 코드(생략/인라인 주석 없음), 실행/헤드리스 검사 명령.
+변경 없는 파일/JSON은 다시 출력하지 않는다. 기존 파일과 어떻게 통합하는지 명시한다.
+실제로 실행한 검사와 미실행 검사를 구분하고 Mac/iOS 실기기 확인 사항을 따로 표시한다.
+긴 결과는 의존 순서로 완전한 파일 단위로 나누어 제공해라.
+
+다음부터 실제 소스:
+
+===== FILE: AGENTS.md =====
+이 저장소는 Vertex AI 기획 세션을 바탕으로 만든 continuation-ready 패키지입니다.
+
+원칙:
+- 코어 로직은 데이터 기반으로 유지합니다.
+- 순환 트랙 이동, 자동 수집, 데드락 판정은 렌더링과 분리합니다.
+- HTML5 프로토타입과 Godot 스캐폴드는 같은 레벨 JSON을 바라보도록 유지합니다.
+- 2배속 토글과 실시간 저장은 기본 요구사항입니다.
+===== END FILE =====
+
+===== FILE: web-prototype/index.html =====
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarLoop Block Sort Prototype</title>
+  <style>
+    :root { --bg:#f4f7fb; --ink:#24324a; --muted:#6b7a90; --card:#ffffff; --line:#d9e1ef; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:linear-gradient(180deg,#eaf2ff,#f7fbff); color:var(--ink); overflow-x:hidden; }
+    .app { max-width:980px; margin:0 auto; padding:16px; }
+    .panel, .car, .track, .meta { background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px rgba(44,82,130,.08); }
+    .panel { padding:12px 14px; }
+    .top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom: 16px; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn { border:0; border-radius:12px; padding:10px 12px; background:#2f6df6; color:white; font-weight:700; cursor:pointer; touch-action:manipulation; }
+    .btn.secondary { background:#eef3ff; color:#2f4f94; }
+    .btn.warn { background:#ff8d66; }
+    .grid { display:grid; grid-template-columns:1.2fr 0.9fr; gap:16px; }
+    @media(max-width:860px) { .grid { grid-template-columns:1fr; } }
+    .board { padding:14px; }
+    .track { position:relative; height:240px; display:flex; flex-direction:column; padding:8px; overflow:hidden; }
+    .track-canvas { position:relative; width:100%; flex:1; min-height:0; margin:12px 16px 16px; }
+    .node-bg { position:absolute; width:40px; height:40px; border-radius:999px; border:2px dashed #c9d4ea; background:#f8fbff; transform:translate(-50%, -50%); display:flex; align-items:center; justify-content:center; font-size:11px; color:#7f8aa2; }
+    .moving-block { position:absolute; width:36px; height:36px; border-radius:999px; transform:translate(-50%, -50%); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; z-index:10; }
+    .moving-block.red, .pill.red { background:#ff6b6b; color:white; border:2px solid #e05252; }
+    .moving-block.blue, .pill.blue { background:#4d96ff; color:white; border:2px solid #367ae0; }
+    .moving-block.yellow, .pill.yellow { background:#ffc542; color:#5d4700; border:2px solid #dfa520; }
+    .cars { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    .car { width:100%; text-align:left; font:inherit; color:inherit; padding:12px; cursor:pointer; user-select:none; }
+    .car:focus-visible, .btn:focus-visible { outline:3px solid #24324a; outline-offset:3px; }
+    .car.locked { opacity:.55; cursor:not-allowed; }
+    .car.cleared { background:#ddffe7; }
+    .car-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .slots { display:flex; gap:6px; flex-wrap:wrap; min-height:36px; }
+    .pill { min-width:28px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; padding:0 8px; }
+    .side { display:flex; flex-direction:column; gap:16px; }
+    .meta { padding:14px; }
+    .status { color:var(--muted); min-height:20px; font-weight:bold; margin-top: 4px; }
+    .tiny { font-size:12px; color:var(--muted); }
+    code { background:#eef3ff; padding:2px 6px; border-radius:8px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="top panel">
+    <div>
+      <strong>CarLoop Block Sort</strong>
+      <div class="tiny">색상을 모아 차량을 완성하세요</div>
+    </div>
+    <div class="controls">
+      <button id="speedBtn" class="btn secondary">1x</button>
+      <button id="undoBtn" class="btn secondary">Undo</button>
+      <button id="shuffleBtn" class="btn secondary" title="한계: 순서만 섞으며 데드락 확정 탈출을 보장하진 않음">Shuffle</button>
+      <button id="resetBtn" class="btn warn">Reset</button>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="board panel">
+      <div><strong id="levelName"></strong></div>
+      <div class="tiny">차량을 탭해 블록을 궤도로 방출하세요. 같은 색만 담긴 차량은 입구를 지나는 같은 색 블록을 수집합니다.</div>
+      <div class="track" id="trackBox">
+        <div><strong>Loop Track</strong> <span class="tiny">capacity <span id="capacityLabel"></span></span></div>
+        <div class="track-canvas" id="trackCanvas"></div>
+      </div>
+      <div class="cars" id="cars"></div>
+    </div>
+    <div class="side">
+      <div class="meta">
+        <div><strong>게임 상태</strong></div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+        <div class="tiny" id="saveStatus">진행 상황 자동 저장</div>
+        <div class="tiny">Shuffle은 차량 순서만 바꾸며 막힘 해소를 보장하지 않습니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script id="levelData" type="application/json">
+[
+  {
+    "id": "level-001",
+    "name": "Starter Loop",
+    "trackCapacity": 8,
+    "trackNodes": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "cars": [
+      {
+        "id": "A",
+        "color": "red",
+        "capacity": 4,
+        "blocks": [
+          "blue",
+          "yellow",
+          "blue",
+          "yellow"
+        ],
+        "lane": 0,
+        "locked": false
+      },
+      {
+        "id": "B",
+        "color": "blue",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "yellow",
+          "red",
+          "yellow"
+        ],
+        "lane": 1,
+        "locked": false
+      },
+      {
+        "id": "C",
+        "color": "yellow",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "blue",
+          "red",
+          "blue"
+        ],
+        "lane": 2,
+        "locked": false
+      }
+    ],
+    "boosters": {
+      "undo": 2,
+      "shuffle": 1,
+      "magnet": 1,
+      "extraSlot": 1
+    }
+  },
+  {
+    "id": "level-002",
+    "name": "Forked Loop",
+    "trackCapacity": 9,
+    "trackNodes": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "cars": [
+      {
+        "id": "A",
+        "color": "red",
+        "capacity": 4,
+        "blocks": [
+          "yellow",
+          "blue",
+          "yellow",
+          "blue"
+        ],
+        "lane": 0,
+        "locked": false
+      },
+      {
+        "id": "B",
+        "color": "blue",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "yellow",
+          "red",
+          "yellow"
+        ],
+        "lane": 1,
+        "locked": false
+      },
+      {
+        "id": "C",
+        "color": "yellow",
+        "capacity": 4,
+        "blocks": [
+          "blue",
+          "red",
+          "blue",
+          "red"
+        ],
+        "lane": 2,
+        "locked": false
+      }
+    ],
+    "boosters": {
+      "undo": 2,
+      "shuffle": 1,
+      "magnet": 1,
+      "extraSlot": 1
+    }
+  }
+]
+</script>
+<script>
+const LEVELS = JSON.parse(document.getElementById('levelData').textContent);
+const clone = value => JSON.parse(JSON.stringify(value));
+
+class GameCore {
+  constructor(levels) {
+    this.levels = levels;
+    this.blockCounter = 0;
+    this.accumulator = 0;
+    this.baseSpeed = 3;
+    this.initLevel(0);
+  }
+
+  initLevel(levelIdx, speed = 1) {
+    this.state = {
+      levelIdx, speed, cars: clone(this.levels[levelIdx].cars),
+      track: [], cleared: [], history: []
+    };
+    this.accumulator = 0;
+    this.markCompleted();
+  }
+
+  markCompleted() {
+    for (const car of this.state.cars) {
+      if (car.blocks.length === car.capacity && car.blocks.every(color => color === car.color)
+          && !this.state.cleared.includes(car.id)) this.state.cleared.push(car.id);
+    }
+  }
+
+  validSnapshot(snapshot, levelIdx) {
+    const level = this.levels[levelIdx];
+    if (!snapshot || snapshot.levelIdx !== levelIdx || ![1, 2].includes(snapshot.speed)
+        || !Array.isArray(snapshot.cars) || snapshot.cars.length !== level.cars.length
+        || !Array.isArray(snapshot.track) || snapshot.track.length > level.trackCapacity
+        || !Array.isArray(snapshot.cleared)) return false;
+    const seen = new Set();
+    const counts = Object.fromEntries(level.cars.map(car => [car.color, 0]));
+    for (const car of snapshot.cars) {
+      if (!car || seen.has(car.id)) return false;
+      const template = level.cars.find(candidate => candidate.id === car.id);
+      if (!template || ['color', 'capacity', 'lane', 'locked'].some(key => car[key] !== template[key])
+          || !Array.isArray(car.blocks) || car.blocks.length > car.capacity) return false;
+      seen.add(car.id);
+      for (const color of car.blocks) {
+        if (!Object.hasOwn(counts, color)) return false;
+        counts[color]++;
+      }
+      const complete = car.blocks.length === car.capacity && car.blocks.every(color => color === car.color);
+      if (snapshot.cleared.includes(car.id) !== complete) return false;
+    }
+    const ids = new Set();
+    for (const item of snapshot.track) {
+      if (!item || !Number.isSafeInteger(item.id) || item.id <= 0 || ids.has(item.id)
+          || !Object.hasOwn(counts, item.color) || !Number.isFinite(item.progress)
+          || item.progress < 0 || item.progress >= level.trackNodes.length) return false;
+      ids.add(item.id);
+      counts[item.color]++;
+    }
+    if (new Set(snapshot.cleared).size !== snapshot.cleared.length
+        || snapshot.cleared.some(id => !seen.has(id))) return false;
+    return Object.entries(counts).every(([color, count]) =>
+      count === level.cars.filter(car => car.color === color).reduce((sum, car) => sum + car.capacity, 0));
+  }
+
+  loadState(saved) {
+    if (!saved || !Number.isInteger(saved.levelIdx) || !this.levels[saved.levelIdx]
+        || !this.validSnapshot(saved, saved.levelIdx) || !Array.isArray(saved.history)
+        || saved.history.length > 20
+        || !saved.history.every(snapshot => this.validSnapshot(snapshot, saved.levelIdx))) return false;
+    this.state = clone(saved);
+    this.accumulator = 0;
+    this.blockCounter = Math.max(0, ...[saved, ...saved.history].flatMap(snapshot => snapshot.track.map(item => item.id)));
+    return true;
+  }
+
+  snapshot() {
+    const snapshot = clone({ ...this.state, history: undefined });
+    this.state.history.push(snapshot);
+    if (this.state.history.length > 20) this.state.history.shift();
+  }
+
+  undo() {
+    const previous = this.state.history.pop();
+    if (!previous) return false;
+    this.state = { ...previous, history: this.state.history, speed: this.state.speed };
+    this.accumulator = 0;
+    return true;
+  }
+
+  shuffle() {
+    if (this.isCleared()) return false;
+    this.snapshot();
+    for (let index = this.state.cars.length - 1; index > 0; index--) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [this.state.cars[index], this.state.cars[target]] = [this.state.cars[target], this.state.cars[index]];
+    }
+    return true;
+  }
+
+  launchCar(carId) {
+    if (this.isCleared()) return 'clearing';
+    const car = this.state.cars.find(candidate => candidate.id === carId);
+    if (!car || car.locked || this.state.cleared.includes(car.id) || !car.blocks.length) return 'invalid';
+    if (this.state.track.length >= this.levels[this.state.levelIdx].trackCapacity) return 'full';
+    this.snapshot();
+    this.state.track.push({ id: ++this.blockCounter, color: car.blocks.shift(), progress: 0 });
+    return 'launched';
+  }
+
+  canCollect(car, color) {
+    return !car.locked && !this.state.cleared.includes(car.id) && car.color === color
+      && car.blocks.length < car.capacity && car.blocks.every(block => block === color);
+  }
+
+  updateProgress(deltaTime) {
+    if (!Number.isFinite(deltaTime) || deltaTime <= 0 || this.isCleared()) return { moved: false, collected: false };
+    this.accumulator += Math.min(deltaTime, 0.1);
+    const step = 1 / 120;
+    const level = this.levels[this.state.levelIdx];
+    let moved = false;
+    let collected = false;
+    while (this.accumulator + 1e-10 >= step) {
+      this.accumulator = Math.max(0, this.accumulator - step);
+      const distance = this.baseSpeed * this.state.speed * step;
+      for (let index = this.state.track.length - 1; index >= 0; index--) {
+        const item = this.state.track[index];
+        const start = item.progress;
+        item.progress = (start + distance) % level.trackNodes.length;
+        moved = true;
+        const car = this.state.cars.find(candidate => {
+          const dock = candidate.lane % level.trackNodes.length;
+          const toDock = (dock - start + level.trackNodes.length) % level.trackNodes.length;
+          return this.canCollect(candidate, item.color) && toDock > 1e-10 && toDock <= distance + 1e-10;
+        });
+        if (car) {
+          car.blocks.push(item.color);
+          this.state.track.splice(index, 1);
+          collected = true;
+          this.markCompleted();
+        }
+      }
+    }
+    return { moved, collected };
+  }
+
+  checkDeadlock() {
+    const level = this.levels[this.state.levelIdx];
+    return this.state.track.length >= level.trackCapacity
+      && !this.state.track.some(item => this.state.cars.some(car => this.canCollect(car, item.color)));
+  }
+
+  isCleared() {
+    return this.state.cleared.length === this.state.cars.length;
+  }
+}
+
+const STORAGE_KEY = 'carloop-prototype-save-v1';
+const LEVEL_SIGNATURE = JSON.stringify(LEVELS);
+const core = new GameCore(LEVELS);
+const el = Object.fromEntries([
+  'levelName', 'capacityLabel', 'trackCanvas', 'cars', 'status',
+  'saveStatus', 'speedBtn', 'undoBtn', 'shuffleBtn', 'resetBtn'
+].map(id => [id, document.getElementById(id)]));
+let lastTime = null;
+let rafId = null;
+let clearTimer = null;
+let revision = 0;
+let dirty = false;
+let lastSaveTime = 0;
+let statusMessage = '차량을 탭해 시작하세요.';
+const blockElements = new Map();
+
+function setStatus(message) {
+  if (el.status.textContent !== message) el.status.textContent = message;
+}
+
+function save(force = false) {
+  const now = performance.now();
+  if (!dirty || (!force && now - lastSaveTime < 1000)) return;
+  lastSaveTime = now;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      version: 3, levels: LEVEL_SIGNATURE, state: core.state
+    }));
+    dirty = false;
+    el.saveStatus.textContent = '진행 상황 자동 저장 중';
+  } catch {
+    el.saveStatus.textContent = '저장할 수 없습니다. 현재 창에서는 계속 플레이할 수 있습니다.';
+  }
+}
+
+function cancelClear() {
+  revision++;
+  if (clearTimer !== null) clearTimeout(clearTimer);
+  clearTimer = null;
+}
+
+function getNodePosition(index) {
+  const nodes = LEVELS[core.state.levelIdx].trackNodes;
+  const maxX = Math.max(...nodes.map(node => node[0])) || 1;
+  const maxY = Math.max(...nodes.map(node => node[1])) || 1;
+  const node = nodes[index % nodes.length];
+  return { x: 6 + node[0] / maxX * 88, y: 12 + node[1] / maxY * 72 };
+}
+
+function renderCars() {
+  el.cars.replaceChildren();
+  for (const car of core.state.cars) {
+    const complete = core.state.cleared.includes(car.id);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'car' + (car.locked ? ' locked' : '') + (complete ? ' cleared' : '');
+    button.disabled = car.locked || complete || !car.blocks.length;
+    button.setAttribute('aria-label', car.id + ' 차량, 목표 ' + car.color + ', 블록 ' + car.blocks.length + '개');
+    button.innerHTML = '<div class="car-head"><strong>' + car.id + ' · target ' + car.color
+      + '</strong><span class="tiny">' + (complete ? 'CLEARED' : car.blocks.length + '/' + car.capacity)
+      + '</span></div><div class="slots">' + (car.blocks.map(color =>
+        '<span class="pill ' + color + '">' + color[0].toUpperCase() + '</span>').join('')
+        || '<span class="tiny">empty</span>') + '</div>';
+    button.onclick = () => {
+      const result = core.launchCar(car.id);
+      if (result === 'launched') {
+        statusMessage = car.id + '에서 블록을 사출했습니다.';
+        dirty = true;
+        save(true);
+        renderCars();
+        renderDynamic();
+        updateStatus();
+      } else if (result === 'full') {
+        setStatus('트랙이 가득 찼습니다. 수집을 기다리거나 Undo를 사용하세요.');
+      }
+    };
+    el.cars.appendChild(button);
+  }
+  el.undoBtn.disabled = !core.state.history.length;
+}
+
+function renderStatic() {
+  const level = LEVELS[core.state.levelIdx];
+  el.levelName.textContent = level.name + ' (' + level.id + ')';
+  el.speedBtn.textContent = core.state.speed + 'x';
+  el.trackCanvas.replaceChildren();
+  blockElements.clear();
+  level.trackNodes.forEach((node, index) => {
+    const position = getNodePosition(index);
+    const element = document.createElement('div');
+    element.className = 'node-bg';
+    element.textContent = index + 1;
+    const cars = level.cars.filter(car => car.lane % level.trackNodes.length === index);
+    if (cars.length) element.textContent = cars.map(car => car.id).join('/');
+    element.title = cars.length ? cars.map(car => car.id + ' 수집 입구').join(', ') : '트랙 ' + (index + 1);
+    element.style.left = position.x + '%';
+    element.style.top = position.y + '%';
+    el.trackCanvas.appendChild(element);
+  });
+  renderCars();
+  renderDynamic();
+}
+
+function renderDynamic() {
+  const level = LEVELS[core.state.levelIdx];
+  el.capacityLabel.textContent = core.state.track.length + ' / ' + level.trackCapacity;
+  const active = new Set(core.state.track.map(item => item.id));
+  for (const [id, element] of blockElements) {
+    if (!active.has(id)) {
+      element.remove();
+      blockElements.delete(id);
+    }
+  }
+  for (const item of core.state.track) {
+    let element = blockElements.get(item.id);
+    if (!element) {
+      element = document.createElement('div');
+      element.className = 'moving-block ' + item.color;
+      element.textContent = item.color[0].toUpperCase();
+      blockElements.set(item.id, element);
+      el.trackCanvas.appendChild(element);
+    }
+    const index = Math.floor(item.progress);
+    const ratio = item.progress - index;
+    const start = getNodePosition(index);
+    const end = getNodePosition(index + 1);
+    element.style.left = (start.x + (end.x - start.x) * ratio) + '%';
+    element.style.top = (start.y + (end.y - start.y) * ratio) + '%';
+  }
+}
+
+function updateStatus() {
+  if (core.isCleared()) {
+    setStatus('클리어! 다음 레벨로 넘어갑니다.');
+    if (clearTimer === null) {
+      const scheduledRevision = revision;
+      clearTimer = setTimeout(() => {
+        if (scheduledRevision !== revision || !core.isCleared()) return;
+        clearTimer = null;
+        core.initLevel((core.state.levelIdx + 1) % LEVELS.length, core.state.speed);
+        dirty = true;
+        statusMessage = '다음 레벨입니다.';
+        save(true);
+        renderStatic();
+        updateStatus();
+      }, 1200);
+    }
+  } else {
+    setStatus(core.checkDeadlock() ? '막힘 상태입니다. Undo 또는 Reset을 사용하세요.' : statusMessage);
+  }
+}
+
+function gameLoop(timestamp) {
+  const deltaTime = lastTime === null ? 0 : Math.max(0, (timestamp - lastTime) / 1000);
+  lastTime = timestamp;
+  const result = core.updateProgress(deltaTime);
+  if (result.moved) {
+    dirty = true;
+    renderDynamic();
+  }
+  if (result.collected) renderCars();
+  save(result.collected);
+  updateStatus();
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function initGame() {
+  cancelClear();
+  if (rafId !== null) cancelAnimationFrame(rafId);
+  core.initLevel(0);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved.version !== 3 || saved.levels !== LEVEL_SIGNATURE || !core.loadState(saved.state)) {
+        statusMessage = '이전 버전 또는 잘못된 저장 데이터입니다. 새 게임을 시작합니다.';
+      }
+    }
+  } catch {
+    statusMessage = '저장 데이터를 읽을 수 없어 새 게임을 시작합니다.';
+  }
+  dirty = true;
+  save(true);
+  renderStatic();
+  updateStatus();
+  lastTime = null;
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+el.speedBtn.onclick = () => {
+  core.state.speed = core.state.speed === 1 ? 2 : 1;
+  el.speedBtn.textContent = core.state.speed + 'x';
+  dirty = true;
+  save(true);
+};
+el.undoBtn.onclick = () => {
+  if (!core.undo()) return;
+  cancelClear();
+  dirty = true;
+  statusMessage = '직전 사출 또는 셔플 전으로 되돌렸습니다.';
+  save(true);
+  renderStatic();
+  updateStatus();
+};
+el.shuffleBtn.onclick = () => {
+  if (!core.shuffle()) return;
+  dirty = true;
+  statusMessage = '차량 표시 순서를 섞었습니다.';
+  save(true);
+  renderCars();
+  updateStatus();
+};
+el.resetBtn.onclick = () => {
+  cancelClear();
+  core.initLevel(0);
+  dirty = true;
+  statusMessage = '첫 레벨로 초기화했습니다.';
+  save(true);
+  renderStatic();
+  updateStatus();
+};
+document.addEventListener('visibilitychange', () => {
+  lastTime = null;
+  core.accumulator = 0;
+  if (document.hidden) save(true);
+});
+window.addEventListener('pagehide', () => save(true));
+initGame();
+</script>
+</body>
+</html>
+===== END FILE =====
+
+===== FILE: godot-project/project.godot =====
+[gd_resource type="Resource" format=3]
+
+[application]
+config/name="CarLoop Block Sort Prototype"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.2", "Mobile")
+
+[autoload]
+GameManager="*res://autoload/GameManager.gd"
+
+[display]
+window/size/viewport_width=540
+window/size/viewport_height=960
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+===== END FILE =====
+
+===== FILE: godot-project/data/levels.json =====
+[
+  {
+    "id": "level-001",
+    "name": "Starter Loop",
+    "trackCapacity": 8,
+    "trackNodes": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "cars": [
+      {
+        "id": "A",
+        "color": "red",
+        "capacity": 4,
+        "blocks": [
+          "blue",
+          "yellow",
+          "blue",
+          "yellow"
+        ],
+        "lane": 0,
+        "locked": false
+      },
+      {
+        "id": "B",
+        "color": "blue",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "yellow",
+          "red",
+          "yellow"
+        ],
+        "lane": 1,
+        "locked": false
+      },
+      {
+        "id": "C",
+        "color": "yellow",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "blue",
+          "red",
+          "blue"
+        ],
+        "lane": 2,
+        "locked": false
+      }
+    ],
+    "boosters": {
+      "undo": 2,
+      "shuffle": 1,
+      "magnet": 1,
+      "extraSlot": 1
+    }
+  },
+  {
+    "id": "level-002",
+    "name": "Forked Loop",
+    "trackCapacity": 9,
+    "trackNodes": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "cars": [
+      {
+        "id": "A",
+        "color": "red",
+        "capacity": 4,
+        "blocks": [
+          "yellow",
+          "blue",
+          "yellow",
+          "blue"
+        ],
+        "lane": 0,
+        "locked": false
+      },
+      {
+        "id": "B",
+        "color": "blue",
+        "capacity": 4,
+        "blocks": [
+          "red",
+          "yellow",
+          "red",
+          "yellow"
+        ],
+        "lane": 1,
+        "locked": false
+      },
+      {
+        "id": "C",
+        "color": "yellow",
+        "capacity": 4,
+        "blocks": [
+          "blue",
+          "red",
+          "blue",
+          "red"
+        ],
+        "lane": 2,
+        "locked": false
+      }
+    ],
+    "boosters": {
+      "undo": 2,
+      "shuffle": 1,
+      "magnet": 1,
+      "extraSlot": 1
+    }
+  }
+]
+===== END FILE =====
+
+===== FILE: godot-project/autoload/GameManager.gd =====
+extends Node
+class_name GameManager
+
+const SAVE_PATH := "user://carloop_save.json"
+
+var current_level: Dictionary = {}
+var speed_multiplier: float = 1.0
+
+func set_level(level_data: Dictionary) -> void:
+	current_level = level_data.duplicate(true)
+
+func set_speed(next_speed: float) -> void:
+	speed_multiplier = next_speed
+
+func save_progress(runtime_state: Dictionary) -> void:
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify(runtime_state))
+
+func load_progress() -> Dictionary:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return {}
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		return {}
+	var parsed = JSON.parse_string(file.get_as_text())
+	return parsed if parsed is Dictionary else {}
+===== END FILE =====
+
+===== FILE: godot-project/scripts/LevelController.gd =====
+extends Node
+class_name LevelController
+
+var level_data: Dictionary = {}
+var cleared_car_ids: Array[String] = []
+
+func load_level(next_level: Dictionary) -> void:
+	level_data = next_level.duplicate(true)
+	cleared_car_ids.clear()
+
+func get_tappable_car_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for car in level_data.get("cars", []):
+		if bool(car.get("locked", false)):
+			continue
+		if car.get("blocks", []).is_empty():
+			continue
+		ids.append(String(car.get("id", "")))
+	return ids
+
+func can_collect(car: Dictionary, color: String) -> bool:
+	var blocks: Array = car.get("blocks", [])
+	if blocks.size() >= int(car.get("capacity", 4)):
+		return false
+	if blocks.is_empty():
+		return true
+	for block in blocks:
+		if String(block) != color:
+			return false
+	return String(car.get("color", "")) == color
+
+func collect_to_car(car_id: String, color: String) -> bool:
+	for car in level_data.get("cars", []):
+		if String(car.get("id", "")) != car_id:
+			continue
+		if not can_collect(car, color):
+			return false
+		car["blocks"].append(color)
+		if car["blocks"].size() >= int(car.get("capacity", 4)):
+			if _is_uniform(car["blocks"], String(car.get("color", ""))):
+				cleared_car_ids.append(car_id)
+		return true
+	return false
+
+func is_cleared() -> bool:
+	return cleared_car_ids.size() >= level_data.get("cars", []).size()
+
+func is_deadlocked(track_count: int, track_capacity: int, any_collectable: bool) -> bool:
+	var no_space := track_count >= track_capacity
+	var no_tap := get_tappable_car_ids().is_empty()
+	return no_space and no_tap and not any_collectable
+
+func _is_uniform(blocks: Array, color: String) -> bool:
+	for block in blocks:
+		if String(block) != color:
+			return false
+	return true
+===== END FILE =====
+
+===== FILE: godot-project/scripts/TrackQueue.gd =====
+extends Node
+class_name TrackQueue
+
+var nodes: Array = []
+var capacity: int = 0
+var items: Array = []
+
+func setup(track_nodes: Array, track_capacity: int) -> void:
+	nodes = track_nodes.duplicate(true)
+	capacity = track_capacity
+	items.clear()
+
+func can_push() -> bool:
+	return items.size() < capacity
+
+func push_block(color: String) -> bool:
+	if not can_push():
+		return false
+	items.append({"color": color, "progress": 0})
+	return true
+
+func step_all(delta_units: int = 1) -> void:
+	for item in items:
+		item["progress"] = int(item.get("progress", 0)) + delta_units
+
+func pop_matching(color: String) -> bool:
+	for idx in range(items.size()):
+		if String(items[idx]["color"]) == color:
+			items.remove_at(idx)
+			return true
+	return false
+===== END FILE =====
+
+===== FILE: godot-project/scripts/BoosterController.gd =====
+extends Node
+class_name BoosterController
+
+func apply_undo(history: Array, cars: Array, track_items: Array) -> Dictionary:
+	if history.is_empty():
+		return {"ok": false}
+	return history.pop_back()
+
+func apply_shuffle(cars: Array) -> void:
+	cars.shuffle()
+
+func apply_magnet(target_color: String, track_items: Array, car: Dictionary) -> void:
+	for idx in range(track_items.size() - 1, -1, -1):
+		if String(track_items[idx]["color"]) == target_color:
+			car["blocks"].append(target_color)
+			track_items.remove_at(idx)
+
+func apply_extra_slot(track_capacity: int) -> int:
+	return track_capacity + 2
+===== END FILE =====
